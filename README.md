@@ -1,6 +1,4 @@
 Battleship
 ==========
 
-Testar för att se om det funkar.
-
-Detsamma du! 
+Tycker vi ska börja med att enas om kodstandarder också. Det kan vara bra. Språk, krav för läsbarhet osv osv.
