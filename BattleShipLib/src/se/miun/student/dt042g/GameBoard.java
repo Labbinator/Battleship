@@ -1,6 +1,6 @@
 package se.miun.student.dt042g;
 
-public class GameBoard {
+public class GameBoard {	
 	
 	public ShipPlacement ships;
 	public EnumCellStatus[][] board ;
@@ -35,5 +35,9 @@ public class GameBoard {
 		
 		return true;
 	}
-	
+
+	public EnumCellStatus getPositionValue(int outer, int inner) {
+		
+		return board[outer][inner];
+	}	
 }
