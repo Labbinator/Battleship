@@ -2,10 +2,10 @@ package se.miun.student.dt042g;
 
 public class GameBoard {	
 	
-	public ShipPlacement ships;
-	public EnumCellStatus[][] board ;
-	public final int WIDTH = 10;
-	public final int HEIGHT = 10;
+	private ShipPlacement ships;
+	private EnumCellStatus[][] board ;
+	private final int WIDTH = 10;
+	private final int HEIGHT = 10;
 	public GameBoard(){
 		board = new EnumCellStatus[WIDTH][HEIGHT];
 		for(int i=0; i<board.length; i++){
@@ -21,14 +21,14 @@ public class GameBoard {
 	public boolean setupPlacement(ShipPlacement p){
 		ships = p;
 		
-		for(int i=0; i<p.NO_SHIPS;i++){
+		for(int i=0; i<p.getNoShips();i++){
 			Ship s = p.getShip(i);
 			
-			for(int j=0; j<s.length; j++){
-				if(s.xAligned){
-					board[s.startX + j][s.startY ] = s.type;
+			for(int j=0; j<s.getLength(); j++){
+				if(s.getXAligned()){
+					board[s.getStartX() + j][s.getStartY() ] = s.getType();
 				}else{
-					board[s.startX ][s.startY + j] = s.type;
+					board[s.getStartX() ][s.getStartY() + j] = s.getType();
 				}				
 			}
 		}
@@ -39,5 +39,13 @@ public class GameBoard {
 	public EnumCellStatus getPositionValue(int outer, int inner) {
 		
 		return board[outer][inner];
-	}	
+	}
+	
+	public int getHeight(){
+		return HEIGHT;
+	}
+	
+	public int getWidth(){
+		return WIDTH;
+	}
 }

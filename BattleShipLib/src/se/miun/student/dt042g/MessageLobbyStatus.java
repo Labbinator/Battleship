@@ -1,7 +1,7 @@
 package se.miun.student.dt042g;
 
 public class MessageLobbyStatus extends Message {
-	public final EnumLobbyState state;
+	private final EnumLobbyState state;
 	
 	public MessageLobbyStatus(EnumLobbyState state){
 		super(EnumHeader.LOBBYSTATUS);

@@ -7,11 +7,11 @@ package se.miun.student.dt042g;
  *  	-> submarine 1, destroyer 3, carrier 5.
  */
 public class Ship {
-	public final int startX;
-	public final int startY;
-	public final int length;
-	public final boolean xAligned; // Sätts till true om skeppet ligger på X-axel
-	public final EnumCellStatus type;
+	private final int startX;
+	private final int startY;
+	private final int length;
+	private final boolean xAligned; // Sätts till true om skeppet ligger på X-axel
+	private final EnumCellStatus type;
 	private int hits; // Antal träffar skeppet tål, stegas ner till 0
 	
 	public Ship( int startX, int startY, int length, boolean xAligned ){
@@ -53,10 +53,28 @@ public class Ship {
 		return false;
 	}
 	
-	
-	
 	public boolean isSunk(){
 		return ( hits <= 0 );
+	}
+	
+	public int getLength(){
+		return length;
+	}
+	
+	public boolean getXAligned(){
+		return xAligned;
+	}
+	
+	public int getStartX(){
+		return startX;
+	}
+	
+	public int getStartY(){
+		return startY;
+	}
+	
+	public EnumCellStatus getType(){
+		return type;
 	}
 	
 }

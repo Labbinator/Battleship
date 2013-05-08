@@ -7,7 +7,7 @@ public class ShipPlacement {
 	 *  
 	 */
 	
-	public final int NO_SHIPS = 9;
+	private final int NO_SHIPS = 9;
 	private Ship[] ships;
 	
 	
@@ -41,4 +41,7 @@ public class ShipPlacement {
 		}
 	}
 	
+	public int getNoShips(){
+		return NO_SHIPS;
+	}	
 }

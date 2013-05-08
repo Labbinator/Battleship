@@ -39,9 +39,9 @@ public class ServerRequestTest {
 		GameBoard board = new GameBoard();
 		board.setupPlacement(p);
 		
-		for(int i=0; i<board.HEIGHT;i++){
-			for(int j=0; j<board.WIDTH; j++){
-				System.out.print( board.board[j][i] + "\t\t");
+		for(int i=0; i<board.getHeight();i++){
+			for(int j=0; j<board.getWidth(); j++){
+				System.out.print( board.getPositionValue(j,i) + "\t\t");
 				
 			}
 			System.out.print("\n");

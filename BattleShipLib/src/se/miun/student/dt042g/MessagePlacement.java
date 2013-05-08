@@ -2,7 +2,7 @@ package se.miun.student.dt042g;
 
 public class MessagePlacement extends Message {
 	
-	public final ShipPlacement shipPlacement;
+	private final ShipPlacement shipPlacement;
 	
 	
 	
@@ -11,6 +11,10 @@ public class MessagePlacement extends Message {
 		super(EnumHeader.PLACEMENT);
 		
 		this.shipPlacement = shipPlacement;
+	}
+	
+	public ShipPlacement getShipPlacement(){
+		return shipPlacement;
 	}
 	
 }
