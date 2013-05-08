@@ -3,78 +3,82 @@ package se.miun.student.dt042g;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 
-public class BattleShipLobby extends Thread{
-	private Socket sock;
-	ObjectInputStream in;
-	ObjectOutputStream out;
-
+public class BattleShipLobby{
 	
+	private Socket playerOneSocket;
+	private Socket playerTwoSocket;
+	private ObjectInputStream in;
+	private ObjectOutputStream out;
+	private ServerSocket ss;
+	private Message inputData;
+	private EnumLobbyChoice choice;
+
 	/**
 	 * Konstruktor för klassen
 	 * 
-	 * Tar en socket som indata och skapar strömmar
+	 * Tar tar in en port som den ska lyssna på
 	 * 
-	 * @param s En socketanslutning
+	 * @param port int
 	 */
-	public BattleShipLobby(Socket s){
-		sock = s; //Initierar strömmar och sockets
-		try { 
-			out = new ObjectOutputStream(sock.getOutputStream());
-			in = new ObjectInputStream(sock.getInputStream());
-		} catch (IOException e1) {
-			out = null;
-			in = null;
+	public BattleShipLobby(int port){
+		try {
+			ss = new ServerSocket(port); //Skapar en serversocket
+			System.out.println("BattlShip Server lyssnar på port: " + port);
+		} catch (IOException e) {
+			System.out.println("BattlShip Server failed to create ServerSocket on: " + port);
+			return;
 		}
 	}
 	
 	public void run(){
-		System.out.println("Lobby tråd nr:" + this.getId() + " skapad");
-		System.out.println("För anslutning från ip: " + sock.getInetAddress().getHostAddress());
+		while(true){
+			
+			playerOneSocket = getPlayer();
+			playerTwoSocket = getPlayer();
+			
+			new BattleShipGameThred(playerOneSocket, playerTwoSocket);
+		}
+	}
+
+	private Socket getPlayer() {
 		
-		while(true){//Evil loop, gjord för testsyfte. Tar emot data och printar lite info.
-			Message mess;	
+		while(true){ //Evig loop, tar emot nya spelare
 			try {
-				mess = (Message)in.readObject();
+				Socket player = ss.accept();
+				out = new ObjectOutputStream(player.getOutputStream());
+				in = new ObjectInputStream(player.getInputStream());
 				
-				EnumHeader en = mess.header;
+				//Skicka lobbyinfo till spelare
+				out.writeObject(new MessageLobbyStatus(EnumLobbyState.EMPTY));
+				inputData = (Message)in.readObject();
 				
-				switch (en) {
-				case LOBBYSTATUS:
-					mess = (MessageLobbyStatus)mess;
-					break;
-				case PLACEMENT:
-					
-					break;
-				case MOVE:
-					break;
-				case MOVERESPONSE:
-					
-					break;
-				case SERVERREQUEST:
-					MessageServerRequest servermess = (MessageServerRequest)mess;
-					System.out.println(servermess.request + " " + servermess.message);
-					 
-					break;
-				default:
-					break;
+				if(inputData.getHeader() != EnumHeader.LOBBYCHOICE){
+					//Varför skickar klienten nåt annat än den blev ombedd att skicka???
+					//På nåt sätt får vi försöka igen här.... Lägga allt i en while loop till???
+				}else{
+					choice = ((MessageLobbyChoice)inputData).getChoice();
 				}
 				
-				out.writeObject(mess);
-			} catch (ClassNotFoundException | IOException e) {
-				break;
+				//om spelare vill spela mot ai så skapas spel och continue körs för att forsätta lyssna efter player one
+				
+				System.out.println("Anslutning etablerad från: " + player.getInetAddress().getHostAddress());
+
+				
+				if(choice == EnumLobbyChoice.WAIT_FOR_PLAYER){
+					System.out.println("Spelare har valt att vänta i lobby på en annan spelare.");
+					return player; //För att gå ur while loopen och ta emot nästa spelare.
+				}else{
+					System.out.println("Spelare har valt att spela mot AI.");
+					new BattleShipGameThred(player, null).start();
+					continue; //Går till början, av while loopen för att hämta en ny player 
+				}
+			} catch (IOException | ClassNotFoundException e) {
+				e.printStackTrace();
 			}
-			
-		}
-		try{ //Efter while loopen stänger sockets och strömmar
-			in.close();
-			out.close();
-			sock.close();
-			System.out.println("Tråd:" + this.getId() + " frånkopplad");
-		} catch(IOException e){
-			System.out.println("Tråd:" + this.getId() + " kunde inte stänga strömmar och/eller socket." );
 		}
 	}
 }
