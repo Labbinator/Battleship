@@ -9,9 +9,14 @@ import java.util.Scanner;
 public class MessageHandler {
 
 	IBattleShipUI battleShipUI = new BattleShipUI();
+	GameBoard[] boards;
+	//GameBoard opponentsBoard;
+	
 	
 	public void run() {
-		
+		boards = new GameBoard[2];
+		boards[0] = new GameBoard(); //MyBoard		
+		boards[1] = new GameBoard(); //OpponentsBoard
 
 		String hostname = "127.0.0.1"; // För att testa i början (localhost)
 		int port = 5511;
@@ -47,6 +52,15 @@ public class MessageHandler {
 				
 				mess = new MessageServerRequest(EnumRequestType.MOVE, "");
 				handleMessage(mess);
+				
+				//mess = new MessageServerRequest(EnumRequestType.ABORTGAME, "");
+				//handleMessage(mess);				
+				
+				//mess = new MessageServerRequest(EnumRequestType.LOBBYRESPONSE, "");
+				//handleMessage(mess);
+				
+				mess = new MessageMoveResponse(EnumMoveResult.HIT);
+				handleMessage(mess);
 
 			//	break;
 			//} catch (IOException e) {
@@ -78,10 +92,10 @@ public class MessageHandler {
 			//placement();
 			break;
 		case MOVE:
-			//move();
+			move(mess);
 			break;
 		case MOVERESPONSE:
-			//moveResponse();
+			moveResponse(((MessageMoveResponse)mess).getResponse());
 			break;
 		case SERVERREQUEST:
 			return serverRequest(((MessageServerRequest)mess).getRequest());
@@ -123,14 +137,35 @@ public class MessageHandler {
 		return null;				
 	}
 
-	private void moveResponse() {
-		// TODO Auto-generated method stub
+	private void moveResponse(EnumMoveResult moveResult) {
+		switch (moveResult) {
+		case HIT:
+			
+			break;
+		case MISS:
+			
+			break;
+		case SINK:
+			
+			break;
+		case WIN:
+			
+			break;
+
+		default:
+			break;
+		}
 		
 	}
 
-	private void move() {
-		// TODO Auto-generated method stub
+	private void move(Message mess) {
+		int x = ((MessageMove)mess).getX();
+		int y = ((MessageMove)mess).getY();
 		
+		//Sk ain när jag fått kims kod.
+		//boards[0].checkShot(x, y);
+		
+		battleShipUI.updateGameBoard(boards);
 	}
 
 	private void placement() {

@@ -38,7 +38,7 @@ public class BattleShipUI implements IBattleShipUI {
 			System.out.print(" " + outer + "  ");
 
 			for (int inner1 = 0; inner1 < 10; inner1++) {
-				EnumCellStatus tmpValue = gameBoard[0].getPositionValue(outer,
+				EnumCellStatus tmpValue = gameBoard[1].getPositionValue(outer,
 						inner1);
 				System.out.print(getCellStatusChar(tmpValue));
 				System.out.print("  ");

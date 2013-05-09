@@ -78,7 +78,7 @@ public class BattleShipGameThred extends Thread {
 				
 				MessageMove move = (MessageMove)mess;
 				
-				EnumMoveResult result = playerOne.getPlacement()).checkShot(move.getX(),move.getY());
+				EnumMoveResult result = playerOne.getPlacement().checkShot(move.getX(),move.getY());
 				
 				switch (result) {
 				case HIT:
