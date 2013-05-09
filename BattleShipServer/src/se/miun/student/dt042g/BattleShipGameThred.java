@@ -28,11 +28,9 @@ public class BattleShipGameThred extends Thread {
 				EnumRequestType.PLACEMENT, ""));
 		placementRequest(playerOne);
 		placementRequest(playerTwo);
-		
-		//Fixa in ship placement
-		
-		
-		
+
+		// Fixa in ship placement
+
 		gameLoop();
 
 	}
@@ -52,11 +50,11 @@ public class BattleShipGameThred extends Thread {
 		checkMessage(mess, EnumHeader.PLACEMENT);
 		// Lägg till kontroll av uppställning här...
 
-		if (!((MessagePlacement)mess).getShipPlacement().isGood()) {
+		if (!((MessagePlacement) mess).getShipPlacement().isGood()) {
 			abortGame();
 		}
 		GameBoard board = new GameBoard();
-		board.setupPlacement(((MessagePlacement)mess).getShipPlacement());
+		board.setupPlacement(((MessagePlacement) mess).getShipPlacement());
 		player.setPlacement(board);
 	}
 
@@ -68,68 +66,39 @@ public class BattleShipGameThred extends Thread {
 
 	private void gameLoop() {
 		// Vid tid, fixa random för att välja spelare
-		while(true){
-			while (true) {
-				playerOne.getMessage(new MessageServerRequest(EnumRequestType.MOVE,
-						""));
-				mess = playerOne.sendMessage();
-				checkMessage(mess, EnumHeader.MOVE);
-				//om move träff så continue
-				
-				MessageMove move = (MessageMove)mess;
-				
-				EnumMoveResult result = playerOne.getPlacement().checkShot(move.getX(),move.getY());
-				
-				switch (result) {
-				case HIT:
-				case FAIL:
-				case SINK:
-					break;
-				case MISS:				
-					break;
-				case WIN:
-					break;
-				default:
-					break;
-				}
-				
-				
-				break;
-				//om move miss break;
-			}
-			while(true){
-				
-			}
+		boolean playGame = true;
+		while (playGame) {
+			playGame = playerMove(playerOne, playerTwo);
+			playGame = playerMove(playerTwo, playerOne);
 		}
 	}
 
-	private void dafuq() {
+	private boolean playerMove(PlayerInterface player, PlayerInterface opponent) {
+		while (true) {
+			player.getMessage(new MessageServerRequest(EnumRequestType.MOVE, ""));
+			mess = player.sendMessage();
+			checkMessage(mess, EnumHeader.MOVE);
+			// om move träff så continue
 
-		/*
-		 * while(true){//Evil loop, gjord för testsyfte. Tar // emot data och
-		 * printar lite info. Message mess; try { mess =
-		 * (Message)in.readObject();
-		 * 
-		 * EnumHeader en = mess.getHeader();
-		 * 
-		 * switch (en) { case LOBBYSTATUS: mess = (MessageLobbyStatus)mess;
-		 * break; case PLACEMENT:
-		 * 
-		 * break; case MOVE: break; case MOVERESPONSE:
-		 * 
-		 * break; case SERVERREQUEST: MessageServerRequest servermess =
-		 * (MessageServerRequest)mess;
-		 * System.out.println(servermess.getRequest() + " " +
-		 * servermess.getMessage());
-		 * 
-		 * break; default: break; }
-		 * 
-		 * out.writeObject(mess); } catch (ClassNotFoundException | IOException
-		 * e) { break; } try{ //Efter while loopen stänger sockets och //
-		 * strömmar in.close(); out.close(); //sock.close();
-		 * System.out.println("Tråd:" + this.getId() + " frånkopplad"); }
-		 * catch(IOException e){ System.out.println("Tråd:" + this.getId() +
-		 * " kunde inte stänga strömmar och/eller socket." ); }
-		 */
+			MessageMove move = (MessageMove) mess;
+
+			EnumMoveResult result = player.getPlacement().checkShot(
+					move.getX(), move.getY());
+
+			switch (result) {
+			case HIT:
+			case FAIL:
+			case SINK:
+				player.getMessage(new MessageMoveResponse(result));
+				opponent.getMessage(move);
+				break;
+			case MISS:
+				return true;
+			case WIN:
+				return false;
+			default:
+				break;
+			}
+		}
 	}
 }
