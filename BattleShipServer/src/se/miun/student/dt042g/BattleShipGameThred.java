@@ -1,83 +1,135 @@
 package se.miun.student.dt042g;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class BattleShipGameThred extends Thread {
 
-	Socket playerOne;
-	Socket playerTwo;
-	ObjectInputStream playerOneIn;
-	ObjectOutputStream playerOneOut;
-	ObjectInputStream playerTwoIn;
-	ObjectOutputStream playerTwoOut;
-	BattleShipAI ai = null;
-	boolean withAI = false;
-	
-	public BattleShipGameThred(Socket playerOne, Socket playerTwo){
-		this.playerOne = playerOne;
-		this.playerTwo = playerTwo;
-		
-		if ( playerTwo == null ){
-			//Spela mot AI
-			//ai = new BattleShipAI();
-			//withAI = true;
-		}else{
-			
+	PlayerInterface playerOne;
+	PlayerInterface playerTwo;
+	Message mess;
+
+	public BattleShipGameThred(Socket playerOne, Socket playerTwo) {
+		this.playerOne = new Player(playerOne);
+
+		if (playerTwo == null) {
+			this.playerTwo = new PlayerAI();
+		} else {
+			this.playerTwo = new Player(playerTwo);
 		}
 	}
-	
-	public void run(){
-		//Här startar själva spelet IF playerTwo == NULL så spelas mot AI
+
+	public void run() {
+		// Först vill vi ha uppställningen sen kommer spelarna alternera om att
+		// skjuta
+
+		playerOne.getMessage(new MessageServerRequest(
+				EnumRequestType.PLACEMENT, ""));
+		playerTwo.getMessage(new MessageServerRequest(
+				EnumRequestType.PLACEMENT, ""));
+		placementRequest(playerOne);
+		placementRequest(playerTwo);
 		
-		//Först vill vi ha uppstälniongen sen kommer spelarna alternera om att skjuta
+		//Fixa in ship placement
+		
+		
+		
+		gameLoop();
+
 	}
-	
-	
-	private void dafuq(){/*  Klippte in koden här.... den ska göras om och fixas iordning
-	
-		while(true){//Evil loop, gjord för testsyfte. Tar emot data och printar lite info.
-			Message mess;	
-			try {
-				mess = (Message)in.readObject();
+
+	private void abortGame() {
+		playerOne.getMessage(new MessageServerRequest(
+				EnumRequestType.ABORTGAME, "Dra dit pepparn växer!!!"));
+		playerOne.close();
+		playerTwo.getMessage(new MessageServerRequest(
+				EnumRequestType.ABORTGAME, "Dra dit pepparn växer!!!"));
+		playerTwo.close();
+	}
+
+	private void placementRequest(PlayerInterface player) {
+
+		mess = player.sendMessage();
+		checkMessage(mess, EnumHeader.PLACEMENT);
+		// Lägg till kontroll av uppställning här...
+
+		if (!((MessagePlacement)mess).getShipPlacement().isGood()) {
+			abortGame();
+		}
+		GameBoard board = new GameBoard();
+		board.setupPlacement(((MessagePlacement)mess).getShipPlacement());
+		player.setPlacement(board);
+	}
+
+	private void checkMessage(Message mess, EnumHeader header) {
+		if (mess.getHeader() != header) {
+			abortGame();
+		}
+	}
+
+	private void gameLoop() {
+		// Vid tid, fixa random för att välja spelare
+		while(true){
+			while (true) {
+				playerOne.getMessage(new MessageServerRequest(EnumRequestType.MOVE,
+						""));
+				mess = playerOne.sendMessage();
+				checkMessage(mess, EnumHeader.MOVE);
+				//om move träff så continue
 				
-				EnumHeader en = mess.getHeader();
+				MessageMove move = (MessageMove)mess;
 				
-				switch (en) {
-				case LOBBYSTATUS:
-					mess = (MessageLobbyStatus)mess;
+				EnumMoveResult result = playerOne.getPlacement()).checkShot(move.getX(),move.getY());
+				
+				switch (result) {
+				case HIT:
+				case FAIL:
+				case SINK:
 					break;
-				case PLACEMENT:
-					
+				case MISS:				
 					break;
-				case MOVE:
-					break;
-				case MOVERESPONSE:
-					
-					break;
-				case SERVERREQUEST:
-					MessageServerRequest servermess = (MessageServerRequest)mess;
-					System.out.println(servermess.getRequest() + " " + servermess.getMessage());
-					 
+				case WIN:
 					break;
 				default:
 					break;
 				}
 				
-				out.writeObject(mess);
-			} catch (ClassNotFoundException | IOException e) {
+				
 				break;
+				//om move miss break;
 			}
-			try{ //Efter while loopen stänger sockets och strömmar
-				in.close();
-				out.close();
-				//sock.close();
-				System.out.println("Tråd:" + this.getId() + " frånkopplad");
-			} catch(IOException e){
-				System.out.println("Tråd:" + this.getId() + " kunde inte stänga strömmar och/eller socket." );
+			while(true){
+				
 			}
-			*/
+		}
+	}
+
+	private void dafuq() {
+
+		/*
+		 * while(true){//Evil loop, gjord för testsyfte. Tar // emot data och
+		 * printar lite info. Message mess; try { mess =
+		 * (Message)in.readObject();
+		 * 
+		 * EnumHeader en = mess.getHeader();
+		 * 
+		 * switch (en) { case LOBBYSTATUS: mess = (MessageLobbyStatus)mess;
+		 * break; case PLACEMENT:
+		 * 
+		 * break; case MOVE: break; case MOVERESPONSE:
+		 * 
+		 * break; case SERVERREQUEST: MessageServerRequest servermess =
+		 * (MessageServerRequest)mess;
+		 * System.out.println(servermess.getRequest() + " " +
+		 * servermess.getMessage());
+		 * 
+		 * break; default: break; }
+		 * 
+		 * out.writeObject(mess); } catch (ClassNotFoundException | IOException
+		 * e) { break; } try{ //Efter while loopen stänger sockets och //
+		 * strömmar in.close(); out.close(); //sock.close();
+		 * System.out.println("Tråd:" + this.getId() + " frånkopplad"); }
+		 * catch(IOException e){ System.out.println("Tråd:" + this.getId() +
+		 * " kunde inte stänga strömmar och/eller socket." ); }
+		 */
 	}
 }
