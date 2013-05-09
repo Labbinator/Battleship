@@ -36,11 +36,35 @@ public class GameBoard {
 		return true;
 	}
 
-	public EnumCellStatus getPositionValue(int outer, int inner) {
+	public EnumCellStatus getPositionValue(int x, int y) {
 		
-		return board[outer][inner];
+		return board[x][y];
 	}
 	
+	public EnumMoveResult checkShot(int x, int y){
+		EnumCellStatus cell = board[x][y];
+		if( cell == EnumCellStatus.CARRIER_HIT
+				|| cell == EnumCellStatus.DESTROYER_HIT
+				|| cell == EnumCellStatus.SUBMARINE_HIT
+				|| cell == EnumCellStatus.HIT ){
+			return EnumMoveResult.FAIL;
+		}
+		for(int i=0; i < ships.getNoShips(); i++){
+			if( ships.getShip(i).checkShot(x, y) ){
+				board[x][y] = EnumCellStatus.values()[ships.getShip(i).getType().ordinal()+1 ];
+				if(ships.getShip(i).isSunk()){
+					return EnumMoveResult.SINK;
+				}else{
+					return EnumMoveResult.HIT;
+				}
+			}
+		}
+		return EnumMoveResult.MISS;
+	}
+	
+	public void setShot(int x, int y){
+		
+	}
 	public int getHeight(){
 		return HEIGHT;
 	}

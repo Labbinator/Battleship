@@ -8,5 +8,6 @@ public enum EnumCellStatus {
 	DESTROYER,
 	DESTROYER_HIT,
 	CARRIER,
-	CARRIER_HIT
+	CARRIER_HIT,
+	HIT
 }

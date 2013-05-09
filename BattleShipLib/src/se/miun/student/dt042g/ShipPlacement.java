@@ -108,7 +108,7 @@ public class ShipPlacement {
 		return true;
 	}
 	
-	private void paintBool(int x, int y, boolean[][] grid){
+	private static void paintBool(int x, int y, boolean[][] grid){
 		if( x >= 0 
 				&& x < grid[0].length 
 				&& 	y >= 0 
@@ -116,7 +116,9 @@ public class ShipPlacement {
 			grid[x][y] = true;
 		}
 	}
-	
+	/* 
+	 * printGrid only used for debug
+	 */
 	private void printGrid(boolean[][] grid){
 		for( int i=0; i < grid.length; i++){
 			for(int j=0; j<grid.length; j++){
