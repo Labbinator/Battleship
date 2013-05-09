@@ -5,6 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import org.omg.SendingContext.RunTime;
+
 
 public class BattleShipClientMain {
 
@@ -14,8 +16,11 @@ public class BattleShipClientMain {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		MessageHandler messageHandler = new MessageHandler();
+		messageHandler.run();
 
-		IBattleShipUI battleShipUI = new BattleShipUI();
+/*		IBattleShipUI battleShipUI = new BattleShipUI();
 		
 		String hostname = "127.0.0.1"; //För att testa i början (localhost)
 		int port = 5511;
@@ -58,9 +63,9 @@ public class BattleShipClientMain {
 		} catch (IOException e) {
 			System.out.println("Kunde inte stänga strömmar/sockets. Detta kan bli ett problem, för servern då.");
 		}
-
+*/
 	}
-
+/*
 	private static GameBoard[] GetGameBoards() {
 		GameBoard board1 = new GameBoard();
 		GameBoard board2 = new GameBoard();
@@ -86,5 +91,6 @@ public class BattleShipClientMain {
 		return new ShipPlacement(sub1, sub2, sub3, sub4, sub5, destroyer1, destroyer2, destroyer3, carrier);
 
 	}
+*/
 
 }
