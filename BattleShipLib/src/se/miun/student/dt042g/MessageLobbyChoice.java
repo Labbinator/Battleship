@@ -1,5 +1,6 @@
 package se.miun.student.dt042g;
 
+@SuppressWarnings("serial")
 public class MessageLobbyChoice extends Message{ 
 
 	private final EnumLobbyChoice choice;

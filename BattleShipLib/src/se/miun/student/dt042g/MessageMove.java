@@ -1,5 +1,6 @@
 package se.miun.student.dt042g;
 
+@SuppressWarnings("serial")
 public class MessageMove extends Message {
 	
 	private final int x;
