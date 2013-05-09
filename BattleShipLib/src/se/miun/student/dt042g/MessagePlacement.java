@@ -1,5 +1,6 @@
 package se.miun.student.dt042g;
 
+@SuppressWarnings("serial")
 public class MessagePlacement extends Message {
 	
 	private final ShipPlacement shipPlacement;

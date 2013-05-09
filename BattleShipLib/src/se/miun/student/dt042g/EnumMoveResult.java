@@ -4,5 +4,6 @@ public enum EnumMoveResult {
 	HIT,
 	MISS,
 	SINK,
-	WIN
+	WIN,
+	FAIL
 }
