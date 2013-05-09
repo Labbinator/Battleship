@@ -19,7 +19,7 @@ public class BattleShipClientMain {
 		
 		MessageHandler messageHandler = new MessageHandler();
 		messageHandler.run();
-
+		System.out.println("GL hf!");
 /*		IBattleShipUI battleShipUI = new BattleShipUI();
 		
 		String hostname = "127.0.0.1"; //För att testa i början (localhost)
