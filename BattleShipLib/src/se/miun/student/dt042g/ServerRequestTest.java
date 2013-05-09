@@ -36,9 +36,11 @@ public class ServerRequestTest {
 		carrier = new Ship(8,0,5,false);
 		
 		ShipPlacement p = new ShipPlacement(sub1,sub2,sub3, sub4, sub5, dest1, dest2, dest3, carrier);
+		System.out.println("Shipplacement isGood: " + p.isGood());
 		GameBoard board = new GameBoard();
 		board.setupPlacement(p);
 		
+		/*
 		for(int i=0; i<board.getHeight();i++){
 			for(int j=0; j<board.getWidth(); j++){
 				System.out.print( board.getPositionValue(j,i) + "\t\t");
@@ -46,7 +48,7 @@ public class ServerRequestTest {
 			}
 			System.out.print("\n");
 		}
-		
+		*/
 		
 	}
 }

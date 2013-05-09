@@ -13,10 +13,20 @@ public class BattleShipGameThred extends Thread {
 	ObjectOutputStream playerOneOut;
 	ObjectInputStream playerTwoIn;
 	ObjectOutputStream playerTwoOut;
+	BattleShipAI ai = null;
+	boolean withAI = false;
 	
 	public BattleShipGameThred(Socket playerOne, Socket playerTwo){
 		this.playerOne = playerOne;
 		this.playerTwo = playerTwo;
+		
+		if ( playerTwo == null ){
+			//Spela mot AI
+			//ai = new BattleShipAI();
+			//withAI = true;
+		}else{
+			
+		}
 	}
 	
 	public void run(){

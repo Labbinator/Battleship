@@ -16,6 +16,7 @@ public class BattleShipLobby{
 	private ServerSocket ss;
 	private Message inputData;
 	private EnumLobbyChoice choice;
+	private EnumLobbyState state;
 
 	/**
 	 * Konstruktor för klassen
@@ -25,6 +26,9 @@ public class BattleShipLobby{
 	 * @param port int
 	 */
 	public BattleShipLobby(int port){
+		
+		state = EnumLobbyState.EMPTY;
+		
 		try {
 			ss = new ServerSocket(port); //Skapar en serversocket
 			System.out.println("BattlShip Server lyssnar på port: " + port);
@@ -38,7 +42,9 @@ public class BattleShipLobby{
 		while(true){
 			
 			playerOneSocket = getPlayer();
+			state = EnumLobbyState.PLAYERWAITING;
 			playerTwoSocket = getPlayer();
+			state = EnumLobbyState.EMPTY;
 			
 			new BattleShipGameThred(playerOneSocket, playerTwoSocket);
 		}
@@ -52,22 +58,25 @@ public class BattleShipLobby{
 				out = new ObjectOutputStream(player.getOutputStream());
 				in = new ObjectInputStream(player.getInputStream());
 				
+				System.out.println("Anslutning etablerad från: " + player.getInetAddress().getHostAddress());
+
 				//Skicka lobbyinfo till spelare
-				out.writeObject(new MessageLobbyStatus(EnumLobbyState.EMPTY));
-				inputData = (Message)in.readObject();
+				out.writeObject(new MessageLobbyStatus(state));
 				
-				if(inputData.getHeader() != EnumHeader.LOBBYCHOICE){
-					//Varför skickar klienten nåt annat än den blev ombedd att skicka???
-					//På nåt sätt får vi försöka igen här.... Lägga allt i en while loop till???
-				}else{
-					choice = ((MessageLobbyChoice)inputData).getChoice();
+				while(true){
+					inputData = (Message)in.readObject();
+					if(inputData.getHeader() != EnumHeader.LOBBYCHOICE){
+						out.writeObject(new MessageLobbyStatus(state));
+						continue;
+						//Varför skickar klienten nåt annat än den blev ombedd att skicka???
+						//På nåt sätt får vi försöka igen här.... Lägga allt i en while loop till???
+					}else{
+						choice = ((MessageLobbyChoice)inputData).getChoice();
+						break;
+					}
 				}
 				
 				//om spelare vill spela mot ai så skapas spel och continue körs för att forsätta lyssna efter player one
-				
-				System.out.println("Anslutning etablerad från: " + player.getInetAddress().getHostAddress());
-
-				
 				if(choice == EnumLobbyChoice.WAIT_FOR_PLAYER){
 					System.out.println("Spelare har valt att vänta i lobby på en annan spelare.");
 					return player; //För att gå ur while loopen och ta emot nästa spelare.
