@@ -7,4 +7,5 @@ public enum EnumRequestType {
 	MOVE,
 	LOBBYRESPONSE, // Servern vill veta om spelaren vill spela ensam eller ej
 	ABORTGAME, // Spelet dött pga omständigheter :)
+	LOSE,
 }

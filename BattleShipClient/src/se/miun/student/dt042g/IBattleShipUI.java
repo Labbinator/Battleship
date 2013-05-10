@@ -2,9 +2,9 @@ package se.miun.student.dt042g;
 
 public interface IBattleShipUI {
 	
-	public void updateGameBoard(GameBoard[] gameBoard);
+	public void updateGameBoard(BaseBoard[] boards);
 	
-	public MessageMove getMove(boolean tryAgain);
+	public MessageMove getMove(EnumMoveResult lastMoveResult);
 	
 	public ShipPlacement getPlacement();
 
@@ -13,4 +13,6 @@ public interface IBattleShipUI {
 	public int getMoveX();
 
 	public int getMoveY();	
+	
+	public void Message(String message);
 }

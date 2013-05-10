@@ -28,7 +28,8 @@ public class Player implements PlayerInterface {
 		try {
 			mess = (Message)in.readObject();
 		} catch (ClassNotFoundException | IOException e) {
-			e.printStackTrace();
+			close();
+			//e.printStackTrace();
 		}
 		
 		return mess;
@@ -40,7 +41,9 @@ public class Player implements PlayerInterface {
 			out.writeObject(mess);
 			out.flush();
 		} catch (IOException e) {
-			e.printStackTrace();
+			close();
+			//e.printStackTrace();
+			
 		}
 	}
 

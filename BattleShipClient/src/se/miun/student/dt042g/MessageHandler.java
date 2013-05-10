@@ -9,17 +9,21 @@ import java.util.Scanner;
 public class MessageHandler {
 
 	IBattleShipUI battleShipUI = new BattleShipUI();
-	GameBoard[] boards;
+	BaseBoard[] boards;
 	//GameBoard opponentsBoard;
 	
 	private int xMove = -1;
 	private int yMove = -1;
 	
+	private EnumMoveResult lastMoveResult = EnumMoveResult.MISS;
+	
+	
 	
 	public void run() {
-		boards = new GameBoard[2];
+		boards = new BaseBoard[2];
 		boards[0] = new GameBoard(); //MyBoard		
-		boards[1] = new GameBoard(); //OpponentsBoard
+		//boards[1] = new GameBoard(); //OpponentsBoard
+		boards[1] = new BlindBoard(); //OpponentsBoard
 
 		String hostname = "127.0.0.1"; // För att testa i början (localhost)
 		int port = 5511;
@@ -131,7 +135,7 @@ public class MessageHandler {
 		switch (requestType) {
 		case PLACEMENT:	
 			ShipPlacement placement = battleShipUI.getPlacement();
-			boards[0].setupPlacement(placement);
+			((GameBoard) boards[0]).setupPlacement(placement);
 			return new MessagePlacement(placement);
 		case MOVE:
 			//int xMove, yMove;
@@ -141,7 +145,7 @@ public class MessageHandler {
 				tryAgain = true;
 			}
 			
-			battleShipUI.getMove(tryAgain);
+			battleShipUI.getMove(lastMoveResult);
 			xMove = battleShipUI.getMoveX();
 			yMove = battleShipUI.getMoveY();
 			return new MessageMove(xMove, yMove);
@@ -150,6 +154,9 @@ public class MessageHandler {
 			
 			break;
 		case ABORTGAME:
+			
+			break;
+		case LOSE:
 			
 			break;
 
@@ -161,31 +168,37 @@ public class MessageHandler {
 
 	private void moveResponse(EnumMoveResult moveResult) {
 		
-		System.out.print(moveResult.toString() + " X värde: " + xMove + " Y värde: " + yMove);
+		System.out.println(moveResult.toString() + " X värde: " + xMove + " Y värde: " + yMove);
+		
+		lastMoveResult = moveResult;
 		
 		//Ska in i motståndarens board.
 		
 		switch (moveResult) {
 		case HIT:
-			boards[1].setShot(xMove, yMove, EnumCellStatus.HIT);
+			((BlindBoard) boards[1]).setShot(xMove, yMove, EnumCellStatus.HIT);
 			
 			break;
 		case MISS:
-			boards[1].setShot(xMove, yMove, EnumCellStatus.MISS);
+			((BlindBoard) boards[1]).setShot(xMove, yMove, EnumCellStatus.MISS);
 			break;
 		case SINK:
-			boards[1].setShot(xMove, yMove, EnumCellStatus.HIT);
+			((BlindBoard) boards[1]).setShot(xMove, yMove, EnumCellStatus.HIT);
 			break;
 		case WIN:
-			boards[1].setShot(xMove, yMove, EnumCellStatus.HIT);
+			((BlindBoard) boards[1]).setShot(xMove, yMove, EnumCellStatus.HIT);
 			break;
 
 		default:
 			break;
 		}
 		
-		xMove = -1;
-		yMove = -1;
+		battleShipUI.updateGameBoard(boards);
+		
+		//if (moveResult != EnumMoveResult.FAIL) {			
+		//	xMove = -1;
+		//	yMove = -1;
+		//}
 		
 	}
 
@@ -194,9 +207,9 @@ public class MessageHandler {
 		int y = ((MessageMove)mess).getY();
 		
 		//Ska in när jag fått kims kod.
-		//boards[0].checkShot(x, y);
+		((GameBoard) boards[0]).checkShot(x, y);
 		
-		//battleShipUI.updateGameBoard(boards);
+		battleShipUI.updateGameBoard(boards);
 	}
 
 	private void placement() {

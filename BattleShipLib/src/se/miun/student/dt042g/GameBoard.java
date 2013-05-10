@@ -1,11 +1,17 @@
 package se.miun.student.dt042g;
 
-public class GameBoard {	
+public class GameBoard extends BaseBoard {	
 	
 	private ShipPlacement ships;
-	private EnumCellStatus[][] board ;
-	private final int WIDTH = 10;
-	private final int HEIGHT = 10;
+	//private EnumCellStatus[][] board ;
+	//private final int WIDTH = 10;
+	//private final int HEIGHT = 10;
+	
+	public GameBoard() {
+		
+	}
+	
+	/*
 	public GameBoard(){
 		board = new EnumCellStatus[WIDTH][HEIGHT];
 		for(int i=0; i<board.length; i++){
@@ -14,6 +20,7 @@ public class GameBoard {
 			}
 		}
 	}
+	*/
 	
 	/*
 	 * Returnera false om setup är felaktig?? ej implementerad
@@ -36,10 +43,10 @@ public class GameBoard {
 		return true;
 	}
 
-	public EnumCellStatus getPositionValue(int x, int y) {
-		
-		return board[x][y];
-	}
+	//public EnumCellStatus getPositionValue(int x, int y) {
+	//	
+	//	return board[x][y];
+	//}
 	
 	public EnumMoveResult checkShot(int x, int y){
 		EnumCellStatus cell = board[x][y];
@@ -53,7 +60,7 @@ public class GameBoard {
 			if( ships.getShip(i).checkShot(x, y) ){
 				board[x][y] = EnumCellStatus.values()[ships.getShip(i).getType().ordinal()+1 ];
 				if(ships.getShip(i).isSunk()){
-					return EnumMoveResult.SINK;
+					return checkWin();
 				}else{
 					return EnumMoveResult.HIT;
 				}
@@ -62,10 +69,22 @@ public class GameBoard {
 		board[x][y] = EnumCellStatus.HIT;
 		return EnumMoveResult.MISS;
 	}
+
+	private EnumMoveResult checkWin() {
+		for(int i = 0; i < ships.getNoShips(); i++){
+			if(!ships.getShip(i).isSunk()){
+				return EnumMoveResult.SINK;
+			}
+		}
+		return EnumMoveResult.WIN;
+	}
+
 	
+	/*
 	public void setShot(int x, int y, EnumCellStatus cellStatus){
 		board[x][y] = cellStatus;
 	}
+	
 	public int getHeight(){
 		return HEIGHT;
 	}
@@ -73,4 +92,5 @@ public class GameBoard {
 	public int getWidth(){
 		return WIDTH;
 	}
+	*/
 }

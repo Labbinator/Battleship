@@ -103,6 +103,26 @@ public class ShipPlacementBuilder {
 		
 		return true;
 	}
+	
+	public ShipPlacement getShipPlacement() {
+		ShipPlacement shipPlacement = new ShipPlacement();
+		
+		for (int i = 0; i < subs.length; i++) {
+			shipPlacement.addShip(subs[i], EnumCellStatus.SUBMARINE);
+		}
+		
+		for (int i = 0; i < destroyers.length; i++) {
+			shipPlacement.addShip(destroyers[i], EnumCellStatus.DESTROYER);
+		}
+		
+		for (int i = 0; i < carriers.length; i++) {
+			shipPlacement.addShip(carriers[i], EnumCellStatus.CARRIER);
+		}
+		
+		
+		return shipPlacement;
+		
+	}
 
 	
 	public void printGrid(boolean[][] grid){

@@ -36,7 +36,7 @@ public class ServerRequestTest {
 		carrier = new Ship(8,0,5,false);
 		
 		ShipPlacement p = new ShipPlacement(sub1,sub2,sub3, sub4, sub5, dest1, dest2, dest3, carrier);
-		System.out.println("Shipplacement isGood: " + p.isGood());
+		System.out.println("Shipplacement isGood: " + ShipPlacementBuilder.isGood(p));
 		GameBoard board = new GameBoard();
 		board.setupPlacement(p);
 		

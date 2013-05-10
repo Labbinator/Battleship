@@ -45,7 +45,9 @@ public class BattleShipGameThred extends Thread {
 		checkMessage(mess, EnumHeader.PLACEMENT);
 		// Lägg till kontroll av uppställning här...
 
-		if (!((MessagePlacement) mess).getShipPlacement().isGood()) {
+		ShipPlacement tmpPlacement = ((MessagePlacement) mess).getShipPlacement();
+		
+		if (!ShipPlacementBuilder.isGood(tmpPlacement)) {
 			abortGame();
 		}
 		GameBoard board = new GameBoard();
@@ -66,6 +68,8 @@ public class BattleShipGameThred extends Thread {
 			playGame = playerMove(playerOne, playerTwo);
 			playGame = playerMove(playerTwo, playerOne);
 		}
+		playerOne.close();
+		playerTwo.close();
 	}
 
 	private boolean playerMove(PlayerInterface player, PlayerInterface opponent) {
@@ -97,6 +101,7 @@ public class BattleShipGameThred extends Thread {
 			case WIN:
 				player.getMessage(new MessageMoveResponse(result));
 				opponent.getMessage(move);
+				opponent.getMessage(new MessageServerRequest(EnumRequestType.LOSE, "You lose!!"));
 				return false;
 			default:
 				break;

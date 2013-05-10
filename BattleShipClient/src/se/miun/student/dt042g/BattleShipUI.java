@@ -8,7 +8,7 @@ public class BattleShipUI implements IBattleShipUI {
 	int xMove = -1;
 	int yMove = -1;
 	@Override
-	public void updateGameBoard(GameBoard[] gameBoard) {
+	public void updateGameBoard(BaseBoard[] boards) {
 
 		clearScreen();
 
@@ -29,7 +29,7 @@ public class BattleShipUI implements IBattleShipUI {
 			System.out.print(outer + " ");
 
 			for (int inner1 = 0; inner1 < 10; inner1++) {
-				EnumCellStatus tmpValue = gameBoard[0].getPositionValue(outer,
+				EnumCellStatus tmpValue = boards[0].getPositionValue(outer,
 						inner1);
 				System.out.print(getCellStatusChar(tmpValue));
 				System.out.print("  ");
@@ -38,7 +38,7 @@ public class BattleShipUI implements IBattleShipUI {
 			System.out.print(" " + outer + "  ");
 
 			for (int inner1 = 0; inner1 < 10; inner1++) {
-				EnumCellStatus tmpValue = gameBoard[1].getPositionValue(outer,
+				EnumCellStatus tmpValue = boards[1].getPositionValue(outer,
 						inner1);
 				System.out.print(getCellStatusChar(tmpValue));
 				System.out.print("  ");
@@ -63,16 +63,17 @@ public class BattleShipUI implements IBattleShipUI {
 		case SUBMARINE_HIT:
 		case DESTROYER_HIT:
 		case CARRIER_HIT:
+		case HIT:
 			return '*';
 		}
 		return '.';
 	}
 
 	@Override
-	public MessageMove getMove(boolean tryAgain) {
+	public MessageMove getMove(EnumMoveResult lastMoveResult) {
 		Scanner input = new Scanner(System.in);
 		
-		if (tryAgain) {
+		if (lastMoveResult == EnumMoveResult.FAIL) {
 			System.out.println("Ditt föregående skott var inte giltigt.");
 		}
 		
@@ -86,8 +87,9 @@ public class BattleShipUI implements IBattleShipUI {
 
 	@Override
 	public ShipPlacement getPlacement() {
-		writeBoard();
+		//writeBoard();
 		
+		/*
 		Scanner input = new Scanner(System.in);	
 		String inputString = "";
 		System.out.println("1. Ubåt");
@@ -98,6 +100,7 @@ public class BattleShipUI implements IBattleShipUI {
 		while (!(inputString.equals("1") || inputString.equals("2") || inputString.equals("3"))) {
 			inputString = new String(input.nextLine());
 		}
+		*/
 		
 		//Detta ska ändras och fråga användaren istället.
 		return getShipPlacement();
@@ -105,8 +108,10 @@ public class BattleShipUI implements IBattleShipUI {
 
 
 
-	private void writeBoard() {
-		// TODO Auto-generated method stub
+	private void writeBoard(BaseBoard board) {
+		for (int i = 0; i < 10; i++) {
+			System.out.print("  " + i);
+		}
 		
 	}
 
@@ -154,6 +159,87 @@ public class BattleShipUI implements IBattleShipUI {
 	}
 	
 	private ShipPlacement getShipPlacement() {
+		ShipPlacementBuilder placeBuilder = new ShipPlacementBuilder();
+		
+		Scanner input = new Scanner(System.in);	
+		
+		System.out.println("Utplacering av ubåtar.");
+		
+		for (int i = 0; i < 5; i++) {
+			System.out.print("Vart vill du placera ubåt " + (i + 1) + "?");					
+			String inputString = new String(input.nextLine());
+			
+			String[] movePointsinput = inputString.split(",");
+			int x = Integer.parseInt(movePointsinput[0]);
+			int y = Integer.parseInt(movePointsinput[1]);
+			
+			if (!placeBuilder.addSub(x, y, true)) {
+				System.out.println("Felutplacering");
+				i--;
+			}
+				
+		}
+		
+		System.out.println("Utplacering av jagare.");
+		
+		for (int i = 0; i < 3; i++) {
+			boolean horizontal = false;
+			
+			System.out.print("Vart vill du placera jagare " + (i + 1) + "?");					
+			
+			String inputString = new String(input.nextLine());
+			
+			String[] movePointsinput = inputString.split(",");
+			int x = Integer.parseInt(movePointsinput[0]);
+			int y = Integer.parseInt(movePointsinput[1]);
+			
+			System.out.print("Ska den ligga horisontelt eller vertikalt (h/v)?");
+			inputString = new String(input.nextLine());
+			
+			if (inputString.equals("h")) {
+				horizontal = true;
+			}
+			
+			if (!placeBuilder.addDestroyer(x, y, horizontal)) {
+				System.out.println("Felutplacering");
+				i--;
+			}
+			
+		}
+		
+		boolean carrierPalcementOK = false;
+
+		while (!carrierPalcementOK) {
+			System.out.println("Utplacering av hangarfartyg.");
+		
+			boolean horizontal = false;
+		
+			System.out.print("Vart vill du placera ditt hangarfartyg?");					
+		
+			String inputString = new String(input.nextLine());
+		
+			String[] movePointsinput = inputString.split(",");
+			int x = Integer.parseInt(movePointsinput[0]);
+			int y = Integer.parseInt(movePointsinput[1]);
+		
+			System.out.print("Ska den ligga horisontelt eller vertikalt (h/v)?");
+			inputString = new String(input.nextLine());
+		
+			if (inputString.equals("h")) {
+				horizontal = true;
+			}
+		
+			carrierPalcementOK = placeBuilder.addCarrier(x, y, horizontal);
+			
+			if (!carrierPalcementOK) {
+				System.out.println("Felutplacering");
+			}
+		}
+		
+		
+		return placeBuilder.getShipPlacement();
+		
+		/*
 		Ship sub1,sub2,sub3, sub4, sub5, dest1, dest2, dest3, carrier;
 		sub1 = new Ship(0,0,1,true);
 		sub2 = new Ship(0,2,1,true);
@@ -168,6 +254,12 @@ public class BattleShipUI implements IBattleShipUI {
 		carrier = new Ship(8,0,5,false);
 		
 		return new ShipPlacement(sub1,sub2,sub3, sub4, sub5, dest1, dest2, dest3, carrier);
+		*/
+	}
+
+	@Override
+	public void Message(String message) {
+		System.out.println(message);		
 	}
 
 }
