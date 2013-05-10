@@ -12,6 +12,10 @@ public class PlayerAI implements PlayerInterface{
 
 	@Override
 	public void getMessage(Message mess) {
+		
+		
+		
+		
 	}
 
 	@Override

@@ -1,38 +1,36 @@
 package se.miun.student.dt042g;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class MessageHandler {
 
 	IBattleShipUI battleShipUI = new BattleShipUI();
 	BaseBoard[] boards;
-	//GameBoard opponentsBoard;
 	
 	private int xMove = -1;
 	private int yMove = -1;
 	
 	private EnumMoveResult lastMoveResult = EnumMoveResult.MISS;
 	
-	
+	private ObjectOutputStream out;
+	private ObjectInputStream in;	
 	
 	public void run() {
 		boards = new BaseBoard[2];
 		boards[0] = new GameBoard(); //MyBoard		
-		//boards[1] = new GameBoard(); //OpponentsBoard
 		boards[1] = new BlindBoard(); //OpponentsBoard
 
 		String hostname = "127.0.0.1"; // För att testa i början (localhost)
 		int port = 5511;
+		boolean keepPlaying = true;
 
 		Message recievedMess = null;
 		Message sendMess = null;
 		Socket s = null;
-		ObjectOutputStream out;
-		ObjectInputStream in;
 
 		try { // Öppnar sockets och strömmar
 			s = new Socket(hostname, port);
@@ -43,72 +41,55 @@ public class MessageHandler {
 			return;
 		}
 
-		while (true) {
+		while (keepPlaying) {
 			try {
 				recievedMess = (Message) in.readObject();
 				sendMess = handleMessage(recievedMess);
-				//battleShipUI.UpdateGameBoard(GetGameBoards());
-				//mess = new MessageServerRequest(EnumRequestType.ABORTGAME,
-				//		"Testar allt detta :p");
 				
 				if (sendMess != null) {												
 					out.writeObject(sendMess); // Skickar object till server.
 					out.flush();
+				} 
+				
+				if (sendMess == null &&
+					((recievedMess.getHeader() == EnumHeader.MOVERESPONSE 
+					&& ((MessageMoveResponse)recievedMess).getResponse() == EnumMoveResult.WIN) 
+					|| (recievedMess.getHeader() == EnumHeader.SERVERREQUEST
+					&& ((MessageServerRequest)recievedMess).getRequest() == EnumRequestType.LOSE))) {
+					battleShipUI.Message("Avslutas på rätt sätt");
+					keepPlaying = false;
 				}
-				//mess = (Message) in.readObject();
-			
 				
-				/*
-				recievedMess = new MessageLobbyStatus(EnumLobbyState.PLAYERWAITING);
-				handleMessage(recievedMess);
-				
-				recievedMess = new MessageServerRequest(EnumRequestType.PLACEMENT, "");
-				handleMessage(recievedMess);
-				
-				recievedMess = new MessageServerRequest(EnumRequestType.MOVE, "");
-				handleMessage(recievedMess);
-				*/
-				
-				
-				
-				//mess = new MessageServerRequest(EnumRequestType.ABORTGAME, "");
-				//handleMessage(mess);				
-				
-				//mess = new MessageServerRequest(EnumRequestType.LOBBYRESPONSE, "");
-				//handleMessage(mess);
-				/*
-				recievedMess = new MessageMoveResponse(EnumMoveResult.HIT);
-				handleMessage(recievedMess);
-				*/
-			//	break;
+			} catch (EOFException e) {
+				battleShipUI.Message("Fanns inget att läsa från servern. Avbryter");
+				break;
 			} catch (IOException e) {
-				e.printStackTrace();
-				System.out.println("Kunde skriva eller ta emot data från servern. Avbryter");
+				battleShipUI.Message("Kunde skriva eller ta emot data från servern. Avbryter");
 				break;
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+
+				break;
 			}
 		}
-		/*try {// Stänger alla strömmar och sockets
+		
+		battleShipUI.Message("\n\nUppkopplingen kommer att stängas ner.\nOm du vill spela igen får du starta om klienten.");
+		closeEveryThing();
+	}
+		
+	private void closeEveryThing() {
+		try {
 			out.close();
 			in.close();
-			s.close();
 		} catch (IOException e) {
-			System.out.println("Kunde inte stänga strömmar/sockets. Detta kan bli ett problem, för servern då.");
-		}*/
-
+			battleShipUI.Message("Avslutades visst inte på rätt sätt.");
+		}
 	}
 
 	private Message handleMessage(Message mess) {
 
 		switch (mess.getHeader()) {
-
 		case LOBBYSTATUS:
 			return battleShipUI.getLobbyChoice();
-		//case PLACEMENT:
-			//placement();
-			//break;
 		case MOVE:
 			move(mess);
 			return null;
@@ -116,68 +97,103 @@ public class MessageHandler {
 			moveResponse(((MessageMoveResponse)mess).getResponse());
 			break;
 		case SERVERREQUEST:
-			return serverRequest(((MessageServerRequest)mess).getRequest());
-		case LOBBYCHOICE:
-			//lobbyChoice();
-			break;
-
+			MessageServerRequest tmpMess = (MessageServerRequest) mess;
+			return serverRequest(tmpMess.getRequest(), tmpMess.getMessage());
 		}
 		return null;
-
 	}
 
-	private void lobbyChoice() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private Message serverRequest(EnumRequestType requestType) {
+	private Message serverRequest(EnumRequestType requestType, String message) {
 		switch (requestType) {
 		case PLACEMENT:	
-			ShipPlacement placement = battleShipUI.getPlacement();
-			((GameBoard) boards[0]).setupPlacement(placement);
-			return new MessagePlacement(placement);
-		case MOVE:
-			//int xMove, yMove;
-			boolean tryAgain = false;
-			if (xMove != -1)
-			{
-				tryAgain = true;
-			}
-			
-			battleShipUI.getMove(lastMoveResult);
-			xMove = battleShipUI.getMoveX();
-			yMove = battleShipUI.getMoveY();
-			return new MessageMove(xMove, yMove);
-
-		case LOBBYRESPONSE:
-			
+			return getPlacement();
+		case MOVE:			
+			MessageMove tmpMess = battleShipUI.getMove(lastMoveResult);
+			xMove = tmpMess.getX();
+			yMove = tmpMess.getY();			
+			return tmpMess;			
+		case LOBBYRESPONSE:			
 			break;
-		case ABORTGAME:
-			
+		case ABORTGAME:			
 			break;
 		case LOSE:
-			
+			battleShipUI.Message(message);
 			break;
-
 		default:
 			break;
 		}
 		return null;				
 	}
 
+	private Message getPlacement() {
+		
+		ShipPlacementBuilder placeBuilder = new ShipPlacementBuilder();	
+		
+		battleShipUI.Message("Utplacering av ubåtar.");		
+		placementSubs(placeBuilder);		
+		
+		battleShipUI.Message("Utplacering av jagare.");
+		placementDestroyer(placeBuilder);
+
+		battleShipUI.Message("Utplacering av hangarfartyg.");
+		placementCarrier(placeBuilder);
+		
+		ShipPlacement placement = placeBuilder.getShipPlacement();
+		((GameBoard) boards[0]).setupPlacement(placement);
+		return new MessagePlacement(placement);		
+	}
+
+	private void placementCarrier(ShipPlacementBuilder placeBuilder) {
+		for (int i = 0; i < 1; i++) {
+			String message = "Vart vill du placera ditt hangarfartyg?";
+			ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, true);
+			
+			if (!placeBuilder.addCarrier(shipCord.getX(), shipCord.getY(), shipCord.getXAlign())) {
+				battleShipUI.Message("Felutplacering");
+				i--;
+			} else {
+				((GameBoard)boards[0]).setupPlacement(placeBuilder.getShipPlacement());
+			}					
+		}		
+	}
+
+	private void placementDestroyer(ShipPlacementBuilder placeBuilder) {
+		for (int i = 0; i < 3; i++) {
+			String message = "Vart vill du placera jagare " + (i + 1) + "?";
+			ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, true);
+			
+			if (!placeBuilder.addDestroyer(shipCord.getX(), shipCord.getY(), shipCord.getXAlign())) {
+				battleShipUI.Message("Felutplacering");
+				i--;
+			} else {
+				((GameBoard)boards[0]).setupPlacement(placeBuilder.getShipPlacement());
+			}						
+		}	
+	}
+
+	private void placementSubs(ShipPlacementBuilder placeBuilder) {
+		for (int i = 0; i < 5; i++) {
+			String message = "Vart vill du placera ubåt " + (i + 1) + "?";
+			ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, false);
+			
+			if (!placeBuilder.addSub(shipCord.getX(), shipCord.getY(), shipCord.getXAlign())) {
+				battleShipUI.Message("Felutplacering");
+				i--;
+			} else {
+				((GameBoard)boards[0]).setupPlacement(placeBuilder.getShipPlacement());
+			}					
+		}		
+	}
+
 	private void moveResponse(EnumMoveResult moveResult) {
 		
 		System.out.println(moveResult.toString() + " X värde: " + xMove + " Y värde: " + yMove);
 		
-		lastMoveResult = moveResult;
-		
-		//Ska in i motståndarens board.
+		lastMoveResult = moveResult;		
 		
 		switch (moveResult) {
 		case HIT:
-			((BlindBoard) boards[1]).setShot(xMove, yMove, EnumCellStatus.HIT);
-			
+			((BlindBoard) boards[1]).setShot(xMove, yMove, EnumCellStatus.HIT);			
 			break;
 		case MISS:
 			((BlindBoard) boards[1]).setShot(xMove, yMove, EnumCellStatus.MISS);
@@ -195,53 +211,17 @@ public class MessageHandler {
 		
 		battleShipUI.updateGameBoard(boards);
 		
-		//if (moveResult != EnumMoveResult.FAIL) {			
-		//	xMove = -1;
-		//	yMove = -1;
-		//}
-		
+		if (moveResult == EnumMoveResult.WIN) {
+			battleShipUI.Message("Grattis, du har vunnit!");
+		}		
 	}
 
 	private void move(Message mess) {
 		int x = ((MessageMove)mess).getX();
 		int y = ((MessageMove)mess).getY();
 		
-		//Ska in när jag fått kims kod.
 		((GameBoard) boards[0]).checkShot(x, y);
 		
 		battleShipUI.updateGameBoard(boards);
 	}
-
-	private void placement() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private static GameBoard[] GetGameBoards() {
-		GameBoard board1 = new GameBoard();
-		GameBoard board2 = new GameBoard();
-
-		board1.setupPlacement(placeShip());
-
-		GameBoard[] returnValue = { board1, board2 };
-
-		return returnValue;
-	}
-
-	private static ShipPlacement placeShip() {
-		Ship sub1 = new Ship(0, 0, 1, true);
-		Ship sub2 = new Ship(3, 3, 1, true);
-		Ship sub3 = new Ship(5, 5, 1, false);
-		Ship sub4 = new Ship(8, 8, 1, true);
-		Ship sub5 = new Ship(3, 5, 1, true);
-		Ship destroyer1 = new Ship(0, 9, 3, true);
-		Ship destroyer2 = new Ship(9, 0, 3, false);
-		Ship destroyer3 = new Ship(5, 0, 3, false);
-		Ship carrier = new Ship(0, 7, 5, true);
-
-		return new ShipPlacement(sub1, sub2, sub3, sub4, sub5, destroyer1,
-				destroyer2, destroyer3, carrier);
-
-	}
-
 }

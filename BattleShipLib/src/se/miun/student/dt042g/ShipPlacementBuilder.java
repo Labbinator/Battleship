@@ -12,12 +12,10 @@ public class ShipPlacementBuilder {
 	private final int NO_SUBS = 5;
 	private final int NO_DESTROYERS = 3;
 	private final int NO_CARRIERS = 1;
-	
+
 	private final int SUB_LENGTH = 1;
 	private final int DESTROYER_LENGTH = 3;
 	private final int CARRIER_LENGTH = 5;
-	
-	
 
 	private boolean[][] grid; // Används enbart för att kontrollera giltig placering
 	private static final int gridW = 10;
@@ -31,7 +29,6 @@ public class ShipPlacementBuilder {
 		grid = new boolean[gridW][gridH];
 		resetGrid(grid);
 		addedSubs = addedCarriers = addedDestroyers = 0;
-		
 	}
 
 	public boolean addSub(int x, int y, boolean xAligned) {
@@ -48,7 +45,7 @@ public class ShipPlacementBuilder {
 			return false;		
 		}
 	}
-	
+
 	public boolean addDestroyer(int x, int y, boolean xAligned){
 		if(getAddedDestroyers() < NO_DESTROYERS){
 			Ship ship = new Ship(x, y, DESTROYER_LENGTH, xAligned);
@@ -63,7 +60,7 @@ public class ShipPlacementBuilder {
 			return false;
 		}
 	}
-	
+
 	public boolean addCarrier(int x, int y, boolean xAligned){
 		if(getAddedCarriers() < NO_CARRIERS){
 			Ship ship = new Ship(x, y, CARRIER_LENGTH, xAligned);
@@ -78,9 +75,9 @@ public class ShipPlacementBuilder {
 			return false;
 		}
 	}
-	
+
 	private boolean addShip(Ship ship ) {
-		
+
 		for (int j = 0; j < ship.getLength(); j++) {
 			if (ship.getXAligned()) {
 				if (grid[ship.getStartX() + j][ship.getStartY()]) {
@@ -100,31 +97,28 @@ public class ShipPlacementBuilder {
 				}
 			}
 		}
-		
+		addToGrid(ship, this.grid);
 		return true;
 	}
-	
+
 	public ShipPlacement getShipPlacement() {
 		ShipPlacement shipPlacement = new ShipPlacement();
-		
-		for (int i = 0; i < subs.length; i++) {
+
+		for (int i = 0; i < addedSubs; i++) {
 			shipPlacement.addShip(subs[i], EnumCellStatus.SUBMARINE);
 		}
-		
-		for (int i = 0; i < destroyers.length; i++) {
+
+		for (int i = 0; i < addedDestroyers; i++) {
 			shipPlacement.addShip(destroyers[i], EnumCellStatus.DESTROYER);
 		}
-		
-		for (int i = 0; i < carriers.length; i++) {
+
+		for (int i = 0; i < addedCarriers; i++) {
 			shipPlacement.addShip(carriers[i], EnumCellStatus.CARRIER);
 		}
-		
-		
+
 		return shipPlacement;
-		
 	}
 
-	
 	public void printGrid(boolean[][] grid){
 		for( int i=0; i < grid.length; i++){
 			for(int j=0; j<grid.length; j++){
@@ -137,7 +131,7 @@ public class ShipPlacementBuilder {
 			System.out.println("");
 		}
 	}
-	
+
 	public static boolean isGood(ShipPlacement sp) {
 		boolean[][] grid = new boolean[gridW][gridH];
 		resetGrid(grid);
@@ -170,30 +164,33 @@ public class ShipPlacementBuilder {
 			/*
 			 * Paint ships and positions around to true in grid
 			 */
-
-			int x_;
-			int y_;
-			if (sp.getShip(i).getXAligned()) {
-				x_ = sp.getShip(i).getLength() + 1;
-				y_ = 2;
-			} else {
-				x_ = 2;
-				y_ = sp.getShip(i).getLength() + 1;
-			}
-
-			for (int j = -1; j < x_; j++) {
-				for (int k = -1; k < y_; k++) {
-					paintBool(sp.getShip(i).getStartX() + j, sp.getShip(i)
-							.getStartY() + k, grid);
-				}
-			}
+			addToGrid( sp.getShip(i), grid);
+			
+			return true;
 		}
 		/*
 		 * DEBUG System.out.println("Placement is good"); printGrid(grid);
 		 */
 		return true;
 	}
+	private static void addToGrid(Ship s, boolean[][] grid){
+	
+		int x_;
+		int y_;
+		if (s.getXAligned()) {
+			x_ = s.getLength() + 1;
+			y_ = 2;
+		} else {
+			x_ = 2;
+			y_ = s.getLength() + 1;
+		}
 
+		for (int j = -1; j < x_; j++) {
+			for (int k = -1; k < y_; k++) {
+				paintBool(s.getStartX() + j, s.getStartY() + k, grid);
+			}
+		}	
+	}
 	private static void paintBool(int x, int y, boolean[][] grid) {
 		if (x >= 0 && x < grid[0].length && y >= 0 && y < grid.length) {
 			grid[x][y] = true;
@@ -219,7 +216,4 @@ public class ShipPlacementBuilder {
 	public int getAddedSubs() {
 		return addedSubs;
 	}
-
-	
-	
 }

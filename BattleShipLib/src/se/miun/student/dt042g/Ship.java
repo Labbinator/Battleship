@@ -9,6 +9,7 @@ import java.io.Serializable;
  *  length är inte hårdkodat någonstans och är beroende av korrekt användande:
  *  	-> submarine 1, destroyer 3, carrier 5.
  */
+@SuppressWarnings("serial")
 public class Ship implements Serializable{
 	private final int startX;
 	private final int startY;

@@ -1,7 +1,5 @@
 package se.miun.student.dt042g;
 
-import java.net.Socket;
-
 public class BattleShipGameThred extends Thread {
 
 	PlayerInterface playerOne;
@@ -81,7 +79,10 @@ public class BattleShipGameThred extends Thread {
 
 			MessageMove move = (MessageMove) mess;
 
-			EnumMoveResult result = player.getPlacement().checkShot(
+			//EnumMoveResult result = player.getPlacement().checkShot(
+			//		move.getX(), move.getY());
+			
+			EnumMoveResult result = opponent.getPlacement().checkShot(
 					move.getX(), move.getY());
 
 			switch (result) {
@@ -101,7 +102,7 @@ public class BattleShipGameThred extends Thread {
 			case WIN:
 				player.getMessage(new MessageMoveResponse(result));
 				opponent.getMessage(move);
-				opponent.getMessage(new MessageServerRequest(EnumRequestType.LOSE, "You lose!!"));
+				opponent.getMessage(new MessageServerRequest(EnumRequestType.LOSE, "Du har förlorat!!"));
 				return false;
 			default:
 				break;

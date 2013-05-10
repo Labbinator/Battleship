@@ -2,6 +2,7 @@ package se.miun.student.dt042g;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class ShipPlacement implements Serializable{
 	
 	/*
@@ -11,13 +12,13 @@ public class ShipPlacement implements Serializable{
 	
 	private final int NO_SHIPS = 9;
 	private Ship[] ships;
-	private final int gridW = 10;
-	private final int gridH = 10;
+	//private final int gridW = 10;
+	//private final int gridH = 10;
 	
 	private int currentNoOfShips = 0;
 	
 	public ShipPlacement() {
-		
+		ships = new Ship[NO_SHIPS];
 	}
 	
 	public ShipPlacement(
@@ -51,7 +52,7 @@ public class ShipPlacement implements Serializable{
 	}
 	
 	public int getNoShips(){
-		return NO_SHIPS;
+		return currentNoOfShips;
 	}
 	
 	public void addShip(Ship ship, EnumCellStatus shipType) {
@@ -123,6 +124,7 @@ public class ShipPlacement implements Serializable{
 	//	return true;
 	//}
 	
+	/*
 	private static void paintBool(int x, int y, boolean[][] grid){
 		if( x >= 0 
 				&& x < grid[0].length 
@@ -131,9 +133,11 @@ public class ShipPlacement implements Serializable{
 			grid[x][y] = true;
 		}
 	}
+	*/
 	/* 
 	 * printGrid only used for debug
 	 */
+	/*
 	private void printGrid(boolean[][] grid){
 		for( int i=0; i < grid.length; i++){
 			for(int j=0; j<grid.length; j++){
@@ -146,4 +150,5 @@ public class ShipPlacement implements Serializable{
 			System.out.println("");
 		}
 	}
+	*/
 }
