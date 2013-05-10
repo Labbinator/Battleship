@@ -59,11 +59,12 @@ public class GameBoard {
 				}
 			}
 		}
+		board[x][y] = EnumCellStatus.HIT;
 		return EnumMoveResult.MISS;
 	}
 	
-	public void setShot(int x, int y){
-		
+	public void setShot(int x, int y, EnumCellStatus cellStatus){
+		board[x][y] = cellStatus;
 	}
 	public int getHeight(){
 		return HEIGHT;

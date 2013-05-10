@@ -38,6 +38,7 @@ public class Player implements PlayerInterface {
 	public void getMessage(Message mess) {
 		try {
 			out.writeObject(mess);
+			out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

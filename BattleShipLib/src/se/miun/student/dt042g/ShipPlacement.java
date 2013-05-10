@@ -1,6 +1,8 @@
 package se.miun.student.dt042g;
 
-public class ShipPlacement {
+import java.io.Serializable;
+
+public class ShipPlacement implements Serializable{
 	
 	/*
 	 * Ful konstruktor men ger rigid klass och publika Ship-objekt

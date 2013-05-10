@@ -1,4 +1,7 @@
 package se.miun.student.dt042g;
+
+import java.io.Serializable;
+
 /*
  *  Ship-klassens logik för checkShot mm är fullt beroende av att 
  *  	startX samt startY är de lägre värdena relativt på griden, ej ubåt.
@@ -6,7 +9,7 @@ package se.miun.student.dt042g;
  *  length är inte hårdkodat någonstans och är beroende av korrekt användande:
  *  	-> submarine 1, destroyer 3, carrier 5.
  */
-public class Ship {
+public class Ship implements Serializable{
 	private final int startX;
 	private final int startY;
 	private final int length;

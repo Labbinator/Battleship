@@ -4,7 +4,7 @@ public interface IBattleShipUI {
 	
 	public void updateGameBoard(GameBoard[] gameBoard);
 	
-	public MessageMove getMove();
+	public MessageMove getMove(boolean tryAgain);
 	
 	public ShipPlacement getPlacement();
 
@@ -12,8 +12,5 @@ public interface IBattleShipUI {
 
 	public int getMoveX();
 
-	public int getMoveY();
-	
-
-
+	public int getMoveY();	
 }

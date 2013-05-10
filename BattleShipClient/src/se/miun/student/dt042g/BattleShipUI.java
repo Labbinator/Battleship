@@ -45,9 +45,6 @@ public class BattleShipUI implements IBattleShipUI {
 			}
 			System.out.print("\n");
 		}
-
-		System.out.println("Skriv uttrycket du vill få uträknat.");
-		System.out.print("Input: ");
 	}
 
 	private char getCellStatusChar(EnumCellStatus tmpValue) {
@@ -72,8 +69,13 @@ public class BattleShipUI implements IBattleShipUI {
 	}
 
 	@Override
-	public MessageMove getMove() {
-		Scanner input = new Scanner(System.in);	
+	public MessageMove getMove(boolean tryAgain) {
+		Scanner input = new Scanner(System.in);
+		
+		if (tryAgain) {
+			System.out.println("Ditt föregående skott var inte giltigt.");
+		}
+		
 		System.out.print("Vart vill du bomba X,Y? ");
 		String inputString = new String(input.nextLine());
 		String[] movePointsinput = inputString.split(",");
@@ -96,7 +98,9 @@ public class BattleShipUI implements IBattleShipUI {
 		while (!(inputString.equals("1") || inputString.equals("2") || inputString.equals("3"))) {
 			inputString = new String(input.nextLine());
 		}
-		return null;
+		
+		//Detta ska ändras och fråga användaren istället.
+		return getShipPlacement();
 	}
 
 
@@ -147,6 +151,23 @@ public class BattleShipUI implements IBattleShipUI {
 		int returnValue = yMove;
 		yMove = -1;
 		return returnValue;
+	}
+	
+	private ShipPlacement getShipPlacement() {
+		Ship sub1,sub2,sub3, sub4, sub5, dest1, dest2, dest3, carrier;
+		sub1 = new Ship(0,0,1,true);
+		sub2 = new Ship(0,2,1,true);
+		sub3 = new Ship(0,4,1,true);
+		sub4 = new Ship(0,6,1,true);
+		sub5 = new Ship(0,8,1,true);
+		
+		dest1 = new Ship(2,0,3,false);
+		dest2 = new Ship(4,0,3,false);
+		dest3 = new Ship(6,0,3,false);
+		
+		carrier = new Ship(8,0,5,false);
+		
+		return new ShipPlacement(sub1,sub2,sub3, sub4, sub5, dest1, dest2, dest3, carrier);
 	}
 
 }

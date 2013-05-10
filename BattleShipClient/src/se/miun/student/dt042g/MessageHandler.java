@@ -12,6 +12,9 @@ public class MessageHandler {
 	GameBoard[] boards;
 	//GameBoard opponentsBoard;
 	
+	private int xMove = -1;
+	private int yMove = -1;
+	
 	
 	public void run() {
 		boards = new GameBoard[2];
@@ -21,7 +24,8 @@ public class MessageHandler {
 		String hostname = "127.0.0.1"; // För att testa i början (localhost)
 		int port = 5511;
 
-		Message mess = null;
+		Message recievedMess = null;
+		Message sendMess = null;
 		Socket s = null;
 		ObjectOutputStream out;
 		ObjectInputStream in;
@@ -36,43 +40,51 @@ public class MessageHandler {
 		}
 
 		while (true) {
-			//try {
+			try {
+				recievedMess = (Message) in.readObject();
+				sendMess = handleMessage(recievedMess);
 				//battleShipUI.UpdateGameBoard(GetGameBoards());
 				//mess = new MessageServerRequest(EnumRequestType.ABORTGAME,
 				//		"Testar allt detta :p");
-				//out.writeObject(mess); // Skickar object till server.
-				//out.flush();
+				
+				if (sendMess != null) {												
+					out.writeObject(sendMess); // Skickar object till server.
+					out.flush();
+				}
 				//mess = (Message) in.readObject();
-
 			
-			System.out.println((char)27+"[01;31m;This text is red."+(char)27+"[00;00m");
-				mess = new MessageLobbyStatus(EnumLobbyState.PLAYERWAITING);
-				handleMessage(mess);
 				
-				mess = new MessageServerRequest(EnumRequestType.PLACEMENT, "");
-				handleMessage(mess);
+				/*
+				recievedMess = new MessageLobbyStatus(EnumLobbyState.PLAYERWAITING);
+				handleMessage(recievedMess);
 				
-				mess = new MessageServerRequest(EnumRequestType.MOVE, "");
-				handleMessage(mess);
+				recievedMess = new MessageServerRequest(EnumRequestType.PLACEMENT, "");
+				handleMessage(recievedMess);
+				
+				recievedMess = new MessageServerRequest(EnumRequestType.MOVE, "");
+				handleMessage(recievedMess);
+				*/
+				
+				
 				
 				//mess = new MessageServerRequest(EnumRequestType.ABORTGAME, "");
 				//handleMessage(mess);				
 				
 				//mess = new MessageServerRequest(EnumRequestType.LOBBYRESPONSE, "");
 				//handleMessage(mess);
-				
-				mess = new MessageMoveResponse(EnumMoveResult.HIT);
-				handleMessage(mess);
-
+				/*
+				recievedMess = new MessageMoveResponse(EnumMoveResult.HIT);
+				handleMessage(recievedMess);
+				*/
 			//	break;
-			//} catch (IOException e) {
-			//	e.printStackTrace();
-			//	System.out.println("Kunde skriva eller ta emot data från servern. Avbryter");
-			//	break;
-			//} catch (ClassNotFoundException e) {
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.out.println("Kunde skriva eller ta emot data från servern. Avbryter");
+				break;
+			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
-			//	e.printStackTrace();
-			//}
+				e.printStackTrace();
+			}
 		}
 		/*try {// Stänger alla strömmar och sockets
 			out.close();
@@ -90,12 +102,12 @@ public class MessageHandler {
 
 		case LOBBYSTATUS:
 			return battleShipUI.getLobbyChoice();
-		case PLACEMENT:
+		//case PLACEMENT:
 			//placement();
-			break;
+			//break;
 		case MOVE:
 			move(mess);
-			break;
+			return null;
 		case MOVERESPONSE:
 			moveResponse(((MessageMoveResponse)mess).getResponse());
 			break;
@@ -117,11 +129,19 @@ public class MessageHandler {
 
 	private Message serverRequest(EnumRequestType requestType) {
 		switch (requestType) {
-		case PLACEMENT:			
-			return new MessagePlacement(battleShipUI.getPlacement());
+		case PLACEMENT:	
+			ShipPlacement placement = battleShipUI.getPlacement();
+			boards[0].setupPlacement(placement);
+			return new MessagePlacement(placement);
 		case MOVE:
-			int xMove, yMove;
-			battleShipUI.getMove();
+			//int xMove, yMove;
+			boolean tryAgain = false;
+			if (xMove != -1)
+			{
+				tryAgain = true;
+			}
+			
+			battleShipUI.getMove(tryAgain);
 			xMove = battleShipUI.getMoveX();
 			yMove = battleShipUI.getMoveY();
 			return new MessageMove(xMove, yMove);
@@ -140,23 +160,32 @@ public class MessageHandler {
 	}
 
 	private void moveResponse(EnumMoveResult moveResult) {
+		
+		System.out.print(moveResult.toString() + " X värde: " + xMove + " Y värde: " + yMove);
+		
+		//Ska in i motståndarens board.
+		
 		switch (moveResult) {
 		case HIT:
+			boards[1].setShot(xMove, yMove, EnumCellStatus.HIT);
 			
 			break;
 		case MISS:
-			
+			boards[1].setShot(xMove, yMove, EnumCellStatus.MISS);
 			break;
 		case SINK:
-			
+			boards[1].setShot(xMove, yMove, EnumCellStatus.HIT);
 			break;
 		case WIN:
-			
+			boards[1].setShot(xMove, yMove, EnumCellStatus.HIT);
 			break;
 
 		default:
 			break;
 		}
+		
+		xMove = -1;
+		yMove = -1;
 		
 	}
 
@@ -164,10 +193,10 @@ public class MessageHandler {
 		int x = ((MessageMove)mess).getX();
 		int y = ((MessageMove)mess).getY();
 		
-		//Sk ain när jag fått kims kod.
+		//Ska in när jag fått kims kod.
 		//boards[0].checkShot(x, y);
 		
-		battleShipUI.updateGameBoard(boards);
+		//battleShipUI.updateGameBoard(boards);
 	}
 
 	private void placement() {

@@ -8,14 +8,9 @@ public class BattleShipGameThred extends Thread {
 	PlayerInterface playerTwo;
 	Message mess;
 
-	public BattleShipGameThred(Socket playerOne, Socket playerTwo) {
-		this.playerOne = new Player(playerOne);
-
-		if (playerTwo == null) {
-			this.playerTwo = new PlayerAI();
-		} else {
-			this.playerTwo = new Player(playerTwo);
-		}
+	public BattleShipGameThred(PlayerInterface playerOne, PlayerInterface playerTwo) {
+		this.playerOne = playerOne;
+		this.playerTwo = playerTwo;
 	}
 
 	public void run() {
@@ -87,14 +82,21 @@ public class BattleShipGameThred extends Thread {
 
 			switch (result) {
 			case HIT:
-			case FAIL:
+				
 			case SINK:
 				player.getMessage(new MessageMoveResponse(result));
 				opponent.getMessage(move);
 				break;
+			case FAIL:
+				player.getMessage(new MessageMoveResponse(result));
+				break;
 			case MISS:
+				player.getMessage(new MessageMoveResponse(result));
+				opponent.getMessage(move);
 				return true;
 			case WIN:
+				player.getMessage(new MessageMoveResponse(result));
+				opponent.getMessage(move);
 				return false;
 			default:
 				break;
