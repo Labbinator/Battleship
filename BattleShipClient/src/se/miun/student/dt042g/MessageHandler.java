@@ -44,6 +44,8 @@ public class MessageHandler {
 				//out.flush();
 				//mess = (Message) in.readObject();
 
+			
+			System.out.println((char)27+"[01;31m;This text is red."+(char)27+"[00;00m");
 				mess = new MessageLobbyStatus(EnumLobbyState.PLAYERWAITING);
 				handleMessage(mess);
 				
