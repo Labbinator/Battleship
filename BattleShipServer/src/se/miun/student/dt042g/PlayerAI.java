@@ -15,13 +15,15 @@ public class PlayerAI implements PlayerInterface{
 	EnumHeader lastMess = EnumHeader.LOBBYCHOICE;
 	MessageMove lastMove = null;
 	List<Integer> moveList = null;
-	
-	
-	
+			
 	public PlayerAI(){
 		moveList = createGridList();
 	}
 
+	/*
+	 * Svarar med rätt meddelande beroende 
+	 * på vad senaste meddelandet var
+	 */
 	@Override
 	public Message sendMessage() {
 		
@@ -65,8 +67,7 @@ public class PlayerAI implements PlayerInterface{
 
 		default:
 			break;
-		}
-								
+		}							
 	}	
 
 
@@ -84,9 +85,11 @@ public class PlayerAI implements PlayerInterface{
 		default:
 			break;
 		}
-
 	}
 
+	/*
+	 * Skapar ett slumpat drag
+	 */
 	private void createMove() {
 		int value = rand.nextInt(moveList.size());			
 		
@@ -149,8 +152,6 @@ public class PlayerAI implements PlayerInterface{
 			if (!shipBuilder.addDestroyer(xPlace, yPlace, xAlign)
 				&& !shipBuilder.addDestroyer(xPlace, yPlace, !xAlign)) {				
 				i--;
-			} else {
-				//board.setupPlacement(placeBuilder.getShipPlacement());
 			}											
 		}		
 	}
@@ -168,22 +169,7 @@ public class PlayerAI implements PlayerInterface{
 			
 			if (!placeBuilder.addSub(xPlace, yPlace, false)) {				
 				i--;
-			} else {
-				//board.setupPlacement(placeBuilder.getShipPlacement());
-			}
-			
-			/*
-			
-			String message = "Vart vill du placera ubåt " + (i + 1) + "?";
-			ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, false);
-			
-			if (!placeBuilder.addSub(shipCord.getX(), shipCord.getY(), shipCord.getXAlign())) {
-				battleShipUI.Message("Felutplacering");
-				i--;
-			} else {
-				((GameBoard)boards[0]).setupPlacement(placeBuilder.getShipPlacement());
-			}
-			*/
+			}			
 		}		
 	}
 
@@ -204,8 +190,7 @@ public class PlayerAI implements PlayerInterface{
 
 	@Override
 	public void setPlacement(GameBoard p) {
-		this.board = p;
-		
+		this.board = p;		
 	}
 
 	@Override
