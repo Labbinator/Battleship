@@ -11,6 +11,12 @@ public class ShipCordinates {
 		this.xAlign = xAlign;
 	}
 	
+	public ShipCordinates(int x, int y) {
+		this.x = x;
+		this.y = y;
+		this.xAlign = true;
+	}
+	
 	public int getX() {
 		return x;
 	}
@@ -21,6 +27,10 @@ public class ShipCordinates {
 	
 	public boolean getXAlign() {
 		return xAlign;
+	}
+	
+	public void setXAlign(boolean xAlign) {
+		this.xAlign = xAlign;
 	}
 
 }

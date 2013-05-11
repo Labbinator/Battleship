@@ -82,6 +82,11 @@ public class BattleShipGameThred extends Thread {
 			//EnumMoveResult result = player.getPlacement().checkShot(
 			//		move.getX(), move.getY());
 			
+			//EnumMoveResult result = opponent.getPlacement().checkShot(
+			//		move.getX(), move.getY());
+			
+			
+			
 			EnumMoveResult result = opponent.getPlacement().checkShot(
 					move.getX(), move.getY());
 

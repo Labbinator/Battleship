@@ -75,11 +75,37 @@ public class BattleShipUI implements IBattleShipUI {
 			System.out.println("Ditt föregående skott var inte giltigt.");
 		}
 		
-		System.out.print("Vart vill du bomba X,Y? ");
-		String inputString = new String(input.nextLine());
-		String[] movePointsinput = inputString.split(",");
-		int xMove = Integer.parseInt(movePointsinput[0]);
-		int yMove = Integer.parseInt(movePointsinput[1]);
+		
+		
+		return getCheckMoveInput();
+		
+		//String inputString = new String(input.nextLine());
+		//String[] movePointsinput = inputString.split(",");
+		//int xMove = Integer.parseInt(movePointsinput[0]);
+		//int yMove = Integer.parseInt(movePointsinput[1]);
+		//return new MessageMove(xMove, yMove);
+	}
+
+	private MessageMove getCheckMoveInput() {
+		boolean inputOK = false;
+		Scanner input = new Scanner(System.in);
+		int xMove = -1;
+		int yMove = -1;
+		
+		while (!inputOK) {
+			System.out.print("Vart vill du bomba X,Y? ");
+			String inputString = new String(input.nextLine());
+			String[] movePointsinput = inputString.split(",");
+			try {				
+				xMove = Integer.parseInt(movePointsinput[0]);
+				yMove = Integer.parseInt(movePointsinput[1]);
+				inputOK = true;
+			} catch (Exception e) {
+				inputOK = false;
+				System.out.println("Ogiltigt drag\nFörsök igen\n");
+			}			
+		}
+
 		return new MessageMove(xMove, yMove);
 	}
 
@@ -107,16 +133,27 @@ public class BattleShipUI implements IBattleShipUI {
 
 	@Override
 	public Message getLobbyChoice() {
+		boolean inputOK = false;
 		Scanner input = new Scanner(System.in);	
-		System.out.print("Vill du spela mot en AI eller mot en klient (A/K)?");
-		String inputString = new String(input.nextLine());	
+		MessageLobbyChoice messLobby = null;
 		
-		if (inputString.equals("A")) {
-			return new MessageLobbyChoice(EnumLobbyChoice.PLAY_VS_AI);
+		while (!inputOK) {
+			inputOK = false;
+			System.out.print("Vill du spela mot en AI eller mot en klient (A/K)?");
+			String inputString = new String(input.nextLine());	
+			
+			if (inputString.toLowerCase().equals("a")) {
+				messLobby = new MessageLobbyChoice(EnumLobbyChoice.PLAY_VS_AI);
+				inputOK = true;
+			} else if (inputString.toLowerCase().equals("k")) {
+				messLobby = new MessageLobbyChoice(EnumLobbyChoice.WAIT_FOR_PLAYER);
+				inputOK = true;
+			} else {
+				System.out.println("Felaktig inmatning\nFörsök igen.");
+			}
 		}
-		else {
-			return new MessageLobbyChoice(EnumLobbyChoice.WAIT_FOR_PLAYER);
-		}
+		
+		return messLobby;
 	}
 	
 	private void clearScreen() {
@@ -140,26 +177,71 @@ public class BattleShipUI implements IBattleShipUI {
 
 	@Override
 	public ShipCordinates getShipPlacement(BaseBoard board, String message, boolean askXAlign) {
-		Scanner input = new Scanner(System.in);	
+		
 		boolean xAlign = false;
 		
 		writeBoard(board);
 		
-		System.out.print(message);					
-		String inputString = new String(input.nextLine());
-		String[] movePointsinput = inputString.split(",");
-		int x = Integer.parseInt(movePointsinput[0]);
-		int y = Integer.parseInt(movePointsinput[1]);
+		//System.out.print(message);					
+		//String inputString = new String(input.nextLine());
+		//String[] movePointsinput = inputString.split(",");
+		//int x = Integer.parseInt(movePointsinput[0]);
+		//int y = Integer.parseInt(movePointsinput[1]);
 		
-		if (askXAlign) {
+		ShipCordinates shipCord = getCheckPlacement(message);
+		
+		if (askXAlign) {			
+			shipCord.setXAlign(getCheckOrientation());		
+		}
+		
+		return shipCord;
+		//return new ShipCordinates(x, y, xAlign);
+	}
+	
+	private boolean getCheckOrientation() {
+		Scanner input = new Scanner(System.in);	
+		boolean inputOK = false;
+		boolean returnValue = false;
+		
+		while (!inputOK) {
 			System.out.print("Ska den ligga horisontelt eller vertikalt (h/v)?");
-			inputString = new String(input.nextLine());
+			String inputString = new String(input.nextLine());
 			
-			if (inputString.equals("h")) {
-				xAlign = true;
+			if (inputString.toLowerCase().equals("h") || inputString.toLowerCase().equals("v")) {
+				inputOK = true;
+				if (inputString.toLowerCase().equals("h")) {
+					returnValue = true;
+				} else {
+					returnValue = false;
+				}
+			} else {
+				System.out.println("Ogiltig orientering\nFörsök igen\n");
+				inputOK = false;
+			}	
+		}
+		return returnValue;
+	}
+	
+	private ShipCordinates getCheckPlacement(String message) {
+		boolean inputOK = false;
+		int x = -1;
+		int y = -1;
+		
+		while (!inputOK) {
+			Scanner input = new Scanner(System.in);	
+			System.out.print(message);					
+			String inputString = new String(input.nextLine());
+			String[] movePointsinput = inputString.split(",");
+			try {
+				x = Integer.parseInt(movePointsinput[0]);
+				y = Integer.parseInt(movePointsinput[1]);
+				inputOK = true;
+			} catch (Exception e) {
+				inputOK = false;
+				System.out.println("Ogiltig utplaceering\nFörsök igen\n");				
 			}
 		}
 		
-		return new ShipCordinates(x, y, xAlign);
-	}	
+		return new ShipCordinates(x, y);
+	}		
 }

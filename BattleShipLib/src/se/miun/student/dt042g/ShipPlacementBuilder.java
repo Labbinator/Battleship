@@ -78,25 +78,31 @@ public class ShipPlacementBuilder {
 
 	private boolean addShip(Ship ship ) {
 
-		for (int j = 0; j < ship.getLength(); j++) {
-			if (ship.getXAligned()) {
-				if (grid[ship.getStartX() + j][ship.getStartY()]) {
+		try {
+			for (int j = 0; j < ship.getLength(); j++) {
+				if (ship.getXAligned()) {
+					if (grid[ship.getStartX() + j][ship.getStartY()]) {
 
-					return false;
-				}
-			} else { // getXAligned = false
-				if (grid[ship.getStartX()][ship.getStartY() + j]) {
-					/*
-					 * DEBUG printGrid(grid);
-					 * System.out.println("Illegal: index: " + i + ", start x: "
-					 * + ships[i].getStartX() + ", start y: " +
-					 * ships[i].getStartY() + ", length: " +
-					 * ships[i].getLength());
-					 */
-					return false;
+						return false;
+					}
+				} else { // getXAligned = false
+					if (grid[ship.getStartX()][ship.getStartY() + j]) {
+						/*
+						 * DEBUG printGrid(grid);
+						 * System.out.println("Illegal: index: " + i + ", start x: "
+						 * + ships[i].getStartX() + ", start y: " +
+						 * ships[i].getStartY() + ", length: " +
+						 * ships[i].getLength());
+						 */
+						return false;
+					}
 				}
 			}
+		} catch (IndexOutOfBoundsException e) {
+			return false;
 		}
+		
+
 		addToGrid(ship, this.grid);
 		return true;
 	}
