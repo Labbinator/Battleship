@@ -6,7 +6,8 @@ public class BattleShipGameThred extends Thread {
 	PlayerInterface playerTwo;
 	Message mess;
 
-	public BattleShipGameThred(PlayerInterface playerOne, PlayerInterface playerTwo) {
+	public BattleShipGameThred(PlayerInterface playerOne,
+			PlayerInterface playerTwo) {
 		this.playerOne = playerOne;
 		this.playerTwo = playerTwo;
 	}
@@ -14,85 +15,92 @@ public class BattleShipGameThred extends Thread {
 	public void run() {
 		// Först vill vi ha uppställningen sen kommer spelarna alternera om att
 		// skjuta
+		try{
+			playerOne.getMessage(new MessageServerRequest(
+					EnumRequestType.PLACEMENT, ""));
+			playerTwo.getMessage(new MessageServerRequest(
+					EnumRequestType.PLACEMENT, ""));
+			placementRequest(playerOne);
+			//Om spelare två svarar med sin uppställning innan spelare 1 så ligger denna kvar och väntar på att bli inläst.
+			placementRequest(playerTwo); 
+	
+			gameLoop();
+		}catch (Exception e) {
+			return;
+		}
+	}// Slutet av run, här dör tråden själv
 
+	private void abortGame() throws Exception {
 		playerOne.getMessage(new MessageServerRequest(
-				EnumRequestType.PLACEMENT, ""));
-		playerTwo.getMessage(new MessageServerRequest(
-				EnumRequestType.PLACEMENT, ""));
-		placementRequest(playerOne);
-		placementRequest(playerTwo);
-
-		// Fixa in ship placement
-
-		gameLoop();
-
-	}
-
-	private void abortGame() {
-		playerOne.getMessage(new MessageServerRequest(
-				EnumRequestType.ABORTGAME, "Dra dit pepparn växer!!!"));
+				EnumRequestType.ABORTGAME,
+				"Någon spelar har skickat felaktig data, spelet avslutas!"));
 		playerOne.close();
 		playerTwo.getMessage(new MessageServerRequest(
-				EnumRequestType.ABORTGAME, "Dra dit pepparn växer!!!"));
+				EnumRequestType.ABORTGAME,
+				"Någon spelar har skickat felaktig data, spelet avslutas!"));
 		playerTwo.close();
+		throw new Exception();
 	}
 
 	private void placementRequest(PlayerInterface player) {
-
-		mess = player.sendMessage();
-		checkMessage(mess, EnumHeader.PLACEMENT);
-		// Lägg till kontroll av uppställning här...
-
-		ShipPlacement tmpPlacement = ((MessagePlacement) mess).getShipPlacement();
-		
-		if (!ShipPlacementBuilder.isGood(tmpPlacement)) {
-			abortGame();
+		try{
+			mess = player.sendMessage();
+			checkMessage(mess, EnumHeader.PLACEMENT);
+	
+			ShipPlacement tmpPlacement = ((MessagePlacement) mess)
+					.getShipPlacement();
+	
+			//Kontrollerar uppställningen
+			if (!ShipPlacementBuilder.isGood(tmpPlacement)) {
+				abortGame();
+			}
+			GameBoard board = new GameBoard();
+			board.setupPlacement(((MessagePlacement) mess).getShipPlacement());
+			player.setPlacement(board);
+		}catch (Exception e) {
+			
 		}
-		GameBoard board = new GameBoard();
-		board.setupPlacement(((MessagePlacement) mess).getShipPlacement());
-		player.setPlacement(board);
 	}
 
-	private void checkMessage(Message mess, EnumHeader header) {
+	private void checkMessage(Message mess, EnumHeader header) throws Exception {
 		if (mess.getHeader() != header) {
 			abortGame();
 		}
 	}
 
-	private void gameLoop() {
-		// Vid tid, fixa random för att välja spelare
+	private void gameLoop() throws Exception {
+		if ((Math.random() * 10) > 5) {
+			// byta plats på spelarna randomiserat låter slumpad spelare starta
+			PlayerInterface playerTmp = playerTwo;
+			playerTwo = playerOne;
+			playerTwo = playerTmp;
+		}
 		boolean playGame = true;
 		while (playGame) {
 			playGame = playerMove(playerOne, playerTwo);
-			playGame = playerMove(playerTwo, playerOne);
+			if (playGame) {
+				// Lade till så att player två enbart får spela om spelet inte
+				// är slut.
+				playGame = playerMove(playerTwo, playerOne);
+			}
 		}
 		playerOne.close();
 		playerTwo.close();
 	}
 
-	private boolean playerMove(PlayerInterface player, PlayerInterface opponent) {
+	private boolean playerMove(PlayerInterface player, PlayerInterface opponent) throws Exception {
 		while (true) {
 			player.getMessage(new MessageServerRequest(EnumRequestType.MOVE, ""));
 			mess = player.sendMessage();
 			checkMessage(mess, EnumHeader.MOVE);
-			// om move träff så continue
 
 			MessageMove move = (MessageMove) mess;
 
-			//EnumMoveResult result = player.getPlacement().checkShot(
-			//		move.getX(), move.getY());
-			
-			//EnumMoveResult result = opponent.getPlacement().checkShot(
-			//		move.getX(), move.getY());
-			
-			
-			
 			EnumMoveResult result = opponent.getPlacement().checkShot(
 					move.getX(), move.getY());
 
 			switch (result) {
 			case HIT:
-				
 			case SINK:
 				player.getMessage(new MessageMoveResponse(result));
 				opponent.getMessage(move);
@@ -107,7 +115,8 @@ public class BattleShipGameThred extends Thread {
 			case WIN:
 				player.getMessage(new MessageMoveResponse(result));
 				opponent.getMessage(move);
-				opponent.getMessage(new MessageServerRequest(EnumRequestType.LOSE, "Du har förlorat!!"));
+				opponent.getMessage(new MessageServerRequest(
+						EnumRequestType.LOSE, "Du har förlorat!!"));
 				return false;
 			default:
 				break;

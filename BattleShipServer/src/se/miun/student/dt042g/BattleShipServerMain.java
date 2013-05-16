@@ -2,7 +2,7 @@ package se.miun.student.dt042g;
 
 public class BattleShipServerMain {
 
-	public static final int PORT = 5511;
+	private static final int PORT = 5511;
 
 	/**
 	 * @param args

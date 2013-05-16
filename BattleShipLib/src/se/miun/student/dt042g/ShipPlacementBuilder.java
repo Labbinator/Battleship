@@ -17,7 +17,8 @@ public class ShipPlacementBuilder {
 	private final int DESTROYER_LENGTH = 3;
 	private final int CARRIER_LENGTH = 5;
 
-	private boolean[][] grid; // Används enbart för att kontrollera giltig placering
+	private boolean[][] grid; // Används enbart för att kontrollera giltig
+								// placering
 	private static final int gridW = 10;
 	private static final int gridH = 10;
 
@@ -32,51 +33,51 @@ public class ShipPlacementBuilder {
 	}
 
 	public boolean addSub(int x, int y, boolean xAligned) {
-		if(getAddedSubs() < NO_SUBS){
+		if (getAddedSubs() < NO_SUBS) {
 			Ship ship = new Ship(x, y, SUB_LENGTH, xAligned);
-			if( addShip( ship ) ){
-				subs[ getAddedSubs() ] = ship;
+			if (addShip(ship)) {
+				subs[getAddedSubs()] = ship;
 				addedSubs++;
 				return true;
-			}else{
+			} else {
 				return false;
 			}
-		}else{
-			return false;		
+		} else {
+			return false;
 		}
 	}
 
-	public boolean addDestroyer(int x, int y, boolean xAligned){
-		if(getAddedDestroyers() < NO_DESTROYERS){
+	public boolean addDestroyer(int x, int y, boolean xAligned) {
+		if (getAddedDestroyers() < NO_DESTROYERS) {
 			Ship ship = new Ship(x, y, DESTROYER_LENGTH, xAligned);
-			if( addShip(ship) ){
+			if (addShip(ship)) {
 				destroyers[getAddedDestroyers()] = ship;
 				addedDestroyers++;
 				return true;
-			}else{
+			} else {
 				return false;
 			}
-		}else{
+		} else {
 			return false;
 		}
 	}
 
-	public boolean addCarrier(int x, int y, boolean xAligned){
-		if(getAddedCarriers() < NO_CARRIERS){
+	public boolean addCarrier(int x, int y, boolean xAligned) {
+		if (getAddedCarriers() < NO_CARRIERS) {
 			Ship ship = new Ship(x, y, CARRIER_LENGTH, xAligned);
-			if( addShip( ship )){
+			if (addShip(ship)) {
 				carriers[getAddedCarriers()] = ship;
 				addedCarriers++;
 				return true;
-			}else{
+			} else {
 				return false;
 			}
-		}else{
+		} else {
 			return false;
 		}
 	}
 
-	private boolean addShip(Ship ship ) {
+	private boolean addShip(Ship ship) {
 
 		try {
 			for (int j = 0; j < ship.getLength(); j++) {
@@ -89,9 +90,9 @@ public class ShipPlacementBuilder {
 					if (grid[ship.getStartX()][ship.getStartY() + j]) {
 						/*
 						 * DEBUG printGrid(grid);
-						 * System.out.println("Illegal: index: " + i + ", start x: "
-						 * + ships[i].getStartX() + ", start y: " +
-						 * ships[i].getStartY() + ", length: " +
+						 * System.out.println("Illegal: index: " + i +
+						 * ", start x: " + ships[i].getStartX() + ", start y: "
+						 * + ships[i].getStartY() + ", length: " +
 						 * ships[i].getLength());
 						 */
 						return false;
@@ -101,7 +102,6 @@ public class ShipPlacementBuilder {
 		} catch (IndexOutOfBoundsException e) {
 			return false;
 		}
-		
 
 		addToGrid(ship, this.grid);
 		return true;
@@ -125,12 +125,12 @@ public class ShipPlacementBuilder {
 		return shipPlacement;
 	}
 
-	public void printGrid(boolean[][] grid){
-		for( int i=0; i < grid.length; i++){
-			for(int j=0; j<grid.length; j++){
-				if(grid[j][i]){
+	public void printGrid(boolean[][] grid) {
+		for (int i = 0; i < grid.length; i++) {
+			for (int j = 0; j < grid.length; j++) {
+				if (grid[j][i]) {
 					System.out.print(" O ");
-				}else{
+				} else {
 					System.out.print(" X ");
 				}
 			}
@@ -153,25 +153,24 @@ public class ShipPlacementBuilder {
 
 						return false;
 					}
-				} else {
-					if (grid[sp.getShip(i).getStartX()][sp.getShip(i)
-							.getStartY() + j]) {
-						/*
-						 * DEBUG printGrid(grid);
-						 * System.out.println("Illegal: index: " + i +
-						 * ", start x: " + ships[i].getStartX() + ", start y: "
-						 * + ships[i].getStartY() + ", length: " +
-						 * ships[i].getLength());
-						 */
-						return false;
-					}
+				} else if (grid[sp.getShip(i).getStartX()][sp.getShip(i)
+						.getStartY() + j]) {
+					/*
+					 * DEBUG printGrid(grid);
+					 * System.out.println("Illegal: index: " + i + ", start x: "
+					 * + ships[i].getStartX() + ", start y: " +
+					 * ships[i].getStartY() + ", length: " +
+					 * ships[i].getLength());
+					 */
+					return false;
 				}
+
 			}
 			/*
 			 * Paint ships and positions around to true in grid
 			 */
-			addToGrid( sp.getShip(i), grid);
-			
+			addToGrid(sp.getShip(i), grid);
+
 			return true;
 		}
 		/*
@@ -179,8 +178,9 @@ public class ShipPlacementBuilder {
 		 */
 		return true;
 	}
-	private static void addToGrid(Ship s, boolean[][] grid){
-	
+
+	private static void addToGrid(Ship s, boolean[][] grid) {
+
 		int x_;
 		int y_;
 		if (s.getXAligned()) {
@@ -195,8 +195,9 @@ public class ShipPlacementBuilder {
 			for (int k = -1; k < y_; k++) {
 				paintBool(s.getStartX() + j, s.getStartY() + k, grid);
 			}
-		}	
+		}
 	}
+
 	private static void paintBool(int x, int y, boolean[][] grid) {
 		if (x >= 0 && x < grid[0].length && y >= 0 && y < grid.length) {
 			grid[x][y] = true;

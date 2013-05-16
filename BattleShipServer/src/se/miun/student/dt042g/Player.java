@@ -19,7 +19,7 @@ public class Player implements PlayerInterface {
 			out = new ObjectOutputStream(player.getOutputStream());
 			in = new ObjectInputStream(player.getInputStream());
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Undantag i Player.java konstruktor. Kunde inte skapa objektströmmar.");
 		}
 	}
 	
@@ -28,8 +28,8 @@ public class Player implements PlayerInterface {
 		try {
 			mess = (Message)in.readObject();
 		} catch (ClassNotFoundException | IOException e) {
+			System.out.println("Undantag i Player.java::sendMessage.");
 			close();
-			//e.printStackTrace();
 		}
 		
 		return mess;
@@ -41,9 +41,8 @@ public class Player implements PlayerInterface {
 			out.writeObject(mess);
 			out.flush();
 		} catch (IOException e) {
+			System.out.println("Undantag i Player.java::getMessage.");
 			close();
-			//e.printStackTrace();
-			
 		}
 	}
 
@@ -51,12 +50,22 @@ public class Player implements PlayerInterface {
 	public void close() {
 		try{
 			in.close();
-			out.close();
-			player.close();
 		} catch(IOException e){
-			e.printStackTrace();
+			System.out.println("Undantag i Player.java::close.");
+			System.out.println("Servern kunde inte stänga inström.");
 		}
-		
+		try {
+			out.close();
+		} catch (IOException e) {
+			System.out.println("Undantag i Player.java::close.");
+			System.out.println("Servern kunde inte stänga utström, detta händer om spelare stängt ner sin anslutning");
+		}
+		try {
+			player.close();
+		} catch (IOException e) {
+			System.out.println("Undantag i Player.java::close.");
+			System.out.println("Servern kunde inte stänga socket.");
+		}
 	}
 
 	@Override
