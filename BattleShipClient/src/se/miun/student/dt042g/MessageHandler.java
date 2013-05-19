@@ -8,6 +8,8 @@ import java.net.Socket;
 
 public class MessageHandler {
 
+	private String hostname;
+	
 	IBattleShipUI battleShipUI = new BattleShipUI();
 	BaseBoard[] boards;
 	
@@ -19,12 +21,23 @@ public class MessageHandler {
 	private ObjectOutputStream out;
 	private ObjectInputStream in;	
 	
+	public MessageHandler(String ipAddress) {
+		
+		if (ipAddress.equals("")) {
+			//Detta ska tas bort när Linn och Kim är klara med GUI:t
+			//Plus att det nog måste till något för att få IP från GUI:t
+			//battleShipUI = new BattleShiGpUI();
+		}
+		
+		hostname = ipAddress;
+	}
+
 	public void run() {
 		boards = new BaseBoard[2];
 		boards[0] = new GameBoard(); //MyBoard		
 		boards[1] = new BlindBoard(); //OpponentsBoard
 
-		String hostname = "127.0.0.1"; // För att testa i början (localhost)
+		//String hostname = "127.0.0.1"; // För att testa i början (localhost)
 		int port = 5511;
 		boolean keepPlaying = true;
 
