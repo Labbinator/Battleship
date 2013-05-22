@@ -4,16 +4,15 @@ public class BattleShipClientMain {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {	
+	public static void main(String[] args) {
 		
-		String ipAddress = "127.0.0.1";
-		
-		if (args.length == 1){
-			ipAddress = args[0];
+		if(args.length > 0){
+			MessageHandler messageHandler = new MessageHandler(args[0]);
+			messageHandler.run();
+			System.out.println("Hej då!");
+		}else{
+			MessageHandlerGUI messageHandler = new MessageHandlerGUI();
+			messageHandler.run();
 		}
-		
-		MessageHandler messageHandler = new MessageHandler(ipAddress);
-		messageHandler.run();
-		System.out.println("Hej då!");
 	}
 }

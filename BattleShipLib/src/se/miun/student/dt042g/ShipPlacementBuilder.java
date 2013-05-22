@@ -77,8 +77,7 @@ public class ShipPlacementBuilder {
 		}
 	}
 
-	private boolean addShip(Ship ship) {
-
+	public boolean testShip(Ship ship) {
 		try {
 			for (int j = 0; j < ship.getLength(); j++) {
 				if (ship.getXAligned()) {
@@ -102,9 +101,24 @@ public class ShipPlacementBuilder {
 		} catch (IndexOutOfBoundsException e) {
 			return false;
 		}
-
-		addToGrid(ship, this.grid);
 		return true;
+	}
+/**
+ * Testar om ett Ship går att placera i den pågående uppbyggandet 
+ * enligt de positioner och xAligned som skickas med 
+ *
+ * @param ship Ship som ska testas
+ * @return true om det är OK position false om det inte är OK
+ */
+	private boolean addShip(Ship ship) {
+
+		if (testShip(ship)) {
+			addToGrid(ship, this.grid);
+			return true;
+		} else {
+			return false;
+		}
+
 	}
 
 	public ShipPlacement getShipPlacement() {
@@ -138,6 +152,7 @@ public class ShipPlacementBuilder {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public static boolean isGood(ShipPlacement sp) {
 		boolean[][] grid = new boolean[gridW][gridH];
 		resetGrid(grid);
@@ -153,18 +168,19 @@ public class ShipPlacementBuilder {
 
 						return false;
 					}
-				} else if (grid[sp.getShip(i).getStartX()][sp.getShip(i)
-						.getStartY() + j]) {
-					/*
-					 * DEBUG printGrid(grid);
-					 * System.out.println("Illegal: index: " + i + ", start x: "
-					 * + ships[i].getStartX() + ", start y: " +
-					 * ships[i].getStartY() + ", length: " +
-					 * ships[i].getLength());
-					 */
-					return false;
+				} else {
+					if (grid[sp.getShip(i).getStartX()][sp.getShip(i)
+							.getStartY() + j]) {
+						/*
+						 * DEBUG printGrid(grid);
+						 * System.out.println("Illegal: index: " + i +
+						 * ", start x: " + ships[i].getStartX() + ", start y: "
+						 * + ships[i].getStartY() + ", length: " +
+						 * ships[i].getLength());
+						 */
+						return false;
+					}
 				}
-
 			}
 			/*
 			 * Paint ships and positions around to true in grid

@@ -11,10 +11,10 @@ import java.io.Serializable;
  */
 @SuppressWarnings("serial")
 public class Ship implements Serializable{
-	private final int startX;
-	private final int startY;
-	private final int length;
-	private final boolean xAligned; // Sätts till true om skeppet ligger på X-axel
+	private int startX;
+	private int startY;
+	private int length;
+	private boolean xAligned; // Sätts till true om skeppet ligger på X-axel
 	private final EnumCellStatus type;
 	private int hits; // Antal träffar skeppet tål, stegas ner till 0
 	
@@ -79,6 +79,18 @@ public class Ship implements Serializable{
 	
 	public EnumCellStatus getType(){
 		return type;
+	}
+	
+	public void setStartX(int startX){
+		this.startX = startX;
+	}
+	
+	public void setStartY(int startY){
+		this.startY = startY;
+	}
+	
+	public void setXAligned(boolean xAligned){
+		this.xAligned = xAligned;
 	}
 	
 }
