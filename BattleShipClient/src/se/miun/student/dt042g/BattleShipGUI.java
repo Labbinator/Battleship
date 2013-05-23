@@ -5,12 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.io.File;
 import java.util.Vector;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -99,8 +95,9 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 		StyledDocument document = new DefaultStyledDocument();
 		Style defaultStyle = document.getStyle(StyleContext.DEFAULT_STYLE);
 		StyleConstants.setAlignment(defaultStyle, StyleConstants.ALIGN_CENTER);
-
 		messageArea = new JTextPane(document);
+		messageArea.setBackground(null);
+		messageArea.setEditable(false);
 		messageArea.setFont(new Font("SansSerif", Font.BOLD, 20));
 		ih = IconHolder.getInstance();
 		shipPlacement = new ShipPlacementBuilder();
@@ -110,19 +107,6 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 		opponentPanel = new BoardPanel("Motståndare");
 		initiateBoard(playerPanel, playerVector);
 		initiateBoard(opponentPanel, opponentVector);
-		playMusic();
-	}
-
-	public void playMusic(){
-	    try{
-	        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("audio/BattleShipMarch.wav").getAbsoluteFile());
-	        Clip clip = AudioSystem.getClip();
-	        clip.open(audioInputStream);
-	        clip.start();
-	    }catch(Exception ex){
-	        System.out.println("Error with playing sound.");
-	        ex.printStackTrace();
-	    }
 	}
 
 	private void initiateBoard(BoardPanel panel, Vector<BoardLabel> vector) {
@@ -147,8 +131,6 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 	private void makeFrame() {
 		setTitle("BattleShip");
 		setLayout(new BorderLayout());
-		messageArea.setBackground(null);
-		messageArea.setEditable(false);
 		JPanel boards = new JPanel(new FlowLayout());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		boards.add(opponentPanel);
@@ -160,6 +142,7 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 		setVisible(true);
 	}
 
+	// Ritar ut vart man kan placera ett skepp
 	private void paintShip(int x, int y, BoardPanel panel, Color color) {
 		ship.setStartX(x);
 		ship.setStartY(y);
@@ -177,6 +160,7 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 		}
 	}
 
+	// Ritar ut vart man kan placera en bomb
 	private void paintBomb(int x, int y, BoardPanel panel, Color color) {
 		BoardLabel label = panel.getLabel(x, y);
 		if (panel.containsBomb(x, y)) {
@@ -274,21 +258,6 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 		case SUBMARINE_HIT:
 		case DESTROYER_HIT:
 		case CARRIER_HIT:
-			label = panel.getLabel(x, y);
-			if (panel.equals(playerPanel)) {
-				if (label.isShipSet()) {
-					label.setShotImage(ih.hit);
-					label.setText(" ");
-				} else {
-					label.setShotImage(ih.miss);
-					label.setText(" ");
-				}
-			} else {
-				label.setShotImage(ih.hit);
-				label.setText(" ");
-			}
-			JOptionPane.showMessageDialog(null, "Skeppet är sänkt");
-			break;
 		case HIT:
 			label = panel.getLabel(x, y);
 			if (panel.equals(playerPanel)) {
@@ -313,7 +282,6 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 			placeShipMode = false;
 			bombMode = true;
 			shipSize = 0;
-			JOptionPane.showMessageDialog(this, "Vart vill du bomba?");
 		}
 		bombed = false;
 		int x = -1, y = -1;

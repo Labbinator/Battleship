@@ -6,6 +6,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import javax.swing.JOptionPane;
+
 public class MessageHandlerGUI {
 
 	IBattleShipUI battleShipGUI = new BattleShipGUI();
@@ -139,9 +141,11 @@ public class MessageHandlerGUI {
 			break;
 		case SINK:
 			((BlindBoard) boards[1]).setShot(xMove, yMove, EnumCellStatus.HIT);
+			JOptionPane.showMessageDialog(null, "Skeppet är sänkt!");
 			break;
 		case WIN:
 			((BlindBoard) boards[1]).setShot(xMove, yMove, EnumCellStatus.HIT);
+			JOptionPane.showMessageDialog(null, "Du har vunnit! Starta om klienten för att spela igen.");
 			break;
 
 		default:
@@ -169,7 +173,7 @@ public class MessageHandlerGUI {
 		case ABORTGAME:
 			break;
 		case LOSE:
-			battleShipGUI.Message(message);
+			JOptionPane.showMessageDialog(null, "Du har förlorat! Starta om klienten för att spela igen.");
 			break;
 		default:
 			break;
