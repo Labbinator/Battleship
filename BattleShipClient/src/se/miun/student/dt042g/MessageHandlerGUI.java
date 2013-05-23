@@ -18,6 +18,17 @@ public class MessageHandlerGUI {
 
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
+	private String hostname;
+
+	//Användaren har angett ip-adress
+	public MessageHandlerGUI(String hostname) {
+		this.hostname = hostname;
+	}
+	
+	//Om ingen ip-adress anges sätts den till localhost
+	public MessageHandlerGUI(){
+		hostname = "127.0.0.1";
+	}
 
 	public void run() {
 
@@ -25,7 +36,7 @@ public class MessageHandlerGUI {
 		boards[0] = new GameBoard(); // MyBoard
 		boards[1] = new BlindBoard(); // OpponentsBoard
 
-		String hostname = "127.0.0.1"; // För att testa i början (localhost)
+		// String hostname = "127.0.0.1"; // För att testa i början (localhost)
 		int port = 5511;
 		boolean keepPlaying = true;
 
@@ -67,7 +78,7 @@ public class MessageHandlerGUI {
 				break;
 			} catch (IOException e) {
 				battleShipGUI
-						.Message("Kunde skriva eller ta emot data från servern. Avbryter");
+						.Message("Kunde int skriva eller ta emot data från servern. Avbryter");
 				break;
 			} catch (ClassNotFoundException e) {
 
@@ -115,8 +126,6 @@ public class MessageHandlerGUI {
 		battleShipGUI.updateGameBoard(boards);
 	}
 
-	// ---------------------------------------------------------------------------------
-
 	private void moveResponse(EnumMoveResult moveResult) {
 
 		lastMoveResult = moveResult;
@@ -145,20 +154,12 @@ public class MessageHandlerGUI {
 		}
 	}
 
-	// ---------------------------------------------------------------------------------
-
 	private Message serverRequest(EnumRequestType requestType, String message) {
 		switch (requestType) {
 		case PLACEMENT:
 			return getPlacement();
 		case MOVE:
-			/*try {
-				this.wait(10);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				System.out.println("Här????");
-				e.printStackTrace();
-			}*/
+			battleShipGUI.Message("Bomba!");
 			MessageMove tmpMess = battleShipGUI.getMove(lastMoveResult);
 			xMove = tmpMess.getX();
 			yMove = tmpMess.getY();

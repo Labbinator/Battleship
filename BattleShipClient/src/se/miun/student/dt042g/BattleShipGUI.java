@@ -4,62 +4,115 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.Font;
 import java.io.File;
 import java.util.Vector;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextPane;
 import javax.swing.border.EtchedBorder;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 
-public class BattleShipGUI extends JFrame implements IBattleShipUI,
-		MouseListener, MouseMotionListener {
-
-	private JPanel opponentPanel, playerPanel;
+public class BattleShipGUI extends JFrame implements IBattleShipUI {
+	private static final long serialVersionUID = 1L;
+	private JTextPane messageArea;
+	private BoardPanel opponentPanel, playerPanel;
 	private Vector<BoardLabel> opponentVector, playerVector;
 	private int shipSize = 0;
 	private boolean horizontal = true, placeShipMode = false, bombMode = false;
-	private Vector<Integer> availableLabels;
-	// Index på placerat skepp och bomb
-	private int placedShip, bombed;
+	// Indikerar om ett skepp eller en bomb har placerats
+	private boolean placedShip, bombed;
 	private ShipPlacementBuilder shipPlacement;
 	private Ship ship;
 	private IconHolder ih;
-	private Vector<Integer> placedShipsVector;
+	private LabelMouseListener mouseListener;
+	private int[] bomb = { -1, -1 };
+
+	private InteractionManipulator manipulator = new InteractionManipulator() {
+
+		@Override
+		public void unMark(int x, int y, BoardPanel panel) {
+			if (placeShipMode && panel.equals(playerPanel)) {
+				paintShip(x, y, panel, null);
+			} else if (bombMode && panel.equals(opponentPanel)) {
+				paintBomb(x, y, panel, null);
+			}
+		}
+
+		@Override
+		public void rotateShip() {
+			if (horizontal) {
+				horizontal = false;
+			} else {
+				horizontal = true;
+			}
+			ship.setXAligned(horizontal);
+		}
+
+		@Override
+		public void mark(int x, int y, BoardPanel panel) {
+			if (placeShipMode && panel.equals(playerPanel)) {
+				// Måla vart skeppet är placerbart
+				paintShip(x, y, panel, Color.RED);
+			} else if (bombMode && panel.equals(opponentPanel)) {
+				paintBomb(x, y, panel, Color.RED);
+			}
+		}
+
+		@Override
+		public void clickOnTile(int x, int y, BoardPanel panel) {
+			if (placeShipMode && panel.equals(playerPanel)) {
+				// Ta bort det röda
+				paintShip(x, y, panel, null);
+				// Placera ut skeppet
+				placeShip(x, y, panel);
+			} else if (bombMode && panel.equals(opponentPanel)) {
+				if (panel.containsBomb(x, y)) {
+					// Ta bort det röda
+					paintBomb(x, y, panel, null);
+					// Bomba på vald plats
+					bomb[0] = x;
+					bomb[1] = y;
+					panel.addBomb(x, y);
+					bombed = true;
+				}
+			}
+		}
+	};
 
 	// Konstruktor
 	public BattleShipGUI() {
 		initiateInstanceVariables();
 		makeFrame();
 	}
-	
+
 	private void initiateInstanceVariables() {
+		StyledDocument document = new DefaultStyledDocument();
+		Style defaultStyle = document.getStyle(StyleContext.DEFAULT_STYLE);
+		StyleConstants.setAlignment(defaultStyle, StyleConstants.ALIGN_CENTER);
+
+		messageArea = new JTextPane(document);
+		messageArea.setFont(new Font("SansSerif", Font.BOLD, 20));
 		ih = IconHolder.getInstance();
 		shipPlacement = new ShipPlacementBuilder();
-		availableLabels = new Vector<Integer>();
 		opponentVector = new Vector<BoardLabel>();
 		playerVector = new Vector<BoardLabel>();
-		placedShipsVector = new Vector<Integer>();
-		opponentPanel = new JPanel(new BorderLayout());
-		opponentPanel
-				.setBorder(BorderFactory.createTitledBorder("Motståndare"));
-		opponentPanel.setLayout(new GridLayout(10, 10));
-		playerPanel = new JPanel(new BorderLayout());
-		playerPanel.setBorder(BorderFactory.createTitledBorder("Din plan"));
-		playerPanel.setLayout(new GridLayout(10, 10));
-		initiateBoard(playerPanel, true, playerVector);
-		initiateBoard(opponentPanel, false, opponentVector);
+		playerPanel = new BoardPanel("Din plan");
+		opponentPanel = new BoardPanel("Motståndare");
+		initiateBoard(playerPanel, playerVector);
+		initiateBoard(opponentPanel, opponentVector);
 		playMusic();
 	}
-	
+
 	public void playMusic(){
 	    try{
 	        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("audio/BattleShipMarch.wav").getAbsoluteFile());
@@ -72,185 +125,113 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI,
 	    }
 	}
 
-	private void initiateBoard(JPanel panel, boolean addMousL,
-			Vector<BoardLabel> vector) {
-		BoardLabel label;
+	private void initiateBoard(BoardPanel panel, Vector<BoardLabel> vector) {
+		BoardLabel label = null;
 		EtchedBorder e = new EtchedBorder();
-		for (int i = 0; i < 100; i++) {
-			label = new BoardLabel();
-			Dimension d = new Dimension(40, 40);
-			label.setPreferredSize(d);
-			label.setBorder(e);
-			label.setForeground(Color.BLACK);
-			label.setBgImage(ih.water);
-			label.setOpaque(true);
-			if (addMousL) {
-				label.addMouseListener(this);
-				label.addMouseMotionListener(this);
+		for (int y = 0; y < 10; y++) {
+			for (int x = 0; x < 10; x++) {
+				mouseListener = new LabelMouseListener(manipulator, x, y, panel);
+				label = new BoardLabel();
+				Dimension d = new Dimension(50, 50);
+				label.setPreferredSize(d);
+				label.setBorder(e);
+				label.setOpaque(true);
+				label.setBgImage(ih.water);
+				label.addMouseListener(mouseListener);
+				label.addMouseMotionListener(mouseListener);
+				panel.addLabel(label);
 			}
-			panel.add(label);
-			vector.add(label);
 		}
 	}
 
 	private void makeFrame() {
 		setTitle("BattleShip");
+		setLayout(new BorderLayout());
+		messageArea.setBackground(null);
+		messageArea.setEditable(false);
+		JPanel boards = new JPanel(new FlowLayout());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setLayout(new FlowLayout());
-		add(opponentPanel);
-		add(playerPanel);
+		boards.add(opponentPanel);
+		boards.add(playerPanel);
+		add(messageArea, BorderLayout.CENTER);
+		add(boards, BorderLayout.SOUTH);
+
 		pack();
 		setVisible(true);
 	}
 
-	// Vector som håller alla index för labels
-	private void initiateFreeVector() {
-		// Radera vectorn om den innehöll något tidigare
-		availableLabels.clear();
-		for (int i = 0; i < 100; i++) {
-			availableLabels.add(i);
-		}
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		BoardLabel label = (BoardLabel) e.getSource();
-		JPanel parent = (JPanel) label.getParent();
-
-		// Kollar vilken panel som är aktiv och tar ut vart berörd label finns
-		// int index = -1;
-		// if (parent.equals(playerPanel)) {
-		int index = playerVector.indexOf(label);
-		// Måla grått där musen inte är
-		for (int i = 0; i < 100; i++) {
-			label = playerVector.elementAt(i);
-			label.setBackground(null);
-			// Om vi ska placera ut skepp
-			if (placeShipMode) {
-				// Rita annan färg där det går att placera skeppet
-				paintPossibleShip(index, label);
-			}
-		}
-		// }
-	}
-
-	// Måla ut möjlig skeppsplacering
-	private void paintPossibleShip(int index, BoardLabel label) {
-		int x = transformFromInt(index)[0];
-		int y = transformFromInt(index)[1];
+	private void paintShip(int x, int y, BoardPanel panel, Color color) {
 		ship.setStartX(x);
 		ship.setStartY(y);
+		BoardLabel label;
 		if (shipPlacement.testShip(ship)) {
 			for (int i = 0; i < shipSize; i++) {
-				// Det kan inte vara något annat bräde än spelarens eget då man
-				// inte får sätta ut skepp i det andra
+				label = panel.getLabel(x, y);
+				label.setBackground(color);
 				if (horizontal) {
-					label = playerVector.elementAt(index);
-					index++;
-					label.setBackground(Color.RED);
+					x += 1;
 				} else {
-					label = playerVector.elementAt(index);
-					index += 10;
-					label.setBackground(Color.RED);
+					y += 1;
 				}
 			}
+		}
+	}
+
+	private void paintBomb(int x, int y, BoardPanel panel, Color color) {
+		BoardLabel label = panel.getLabel(x, y);
+		if (panel.containsBomb(x, y)) {
+			label.setBackground(color);
 		}
 	}
 
 	// Placera ut skeppet på spelarens plan
-	private void placeShip(int index, BoardLabel label) {
-		int x = transformFromInt(index)[0];
-		int y = transformFromInt(index)[1];
+	private void placeShip(int x, int y, BoardPanel panel) {
 		ship.setStartX(x);
 		ship.setStartY(y);
 		if (shipPlacement.testShip(ship)) {
+			BoardLabel label = panel.getLabel(x, y);
 			// Om det är en ubåt som ska placeras
 			if (shipSize == 1) {
+				// Sätt bilden
 				label.setShipImage(ih.sub);
-				placedShipsVector.add(index);
 			} else {
+				int tmpX = x, tmpY = y;
 				for (int i = 0; i < shipSize; i++) {
+					label = panel.getLabel(tmpX, tmpY);
 					if (horizontal) {
-						label = playerVector.elementAt(index);
 						if (shipSize == 3) {
 							label.setShipImage(ih.destroyer_h[i]);
-							placedShipsVector.add(index);
 						} else {
 							label.setShipImage(ih.carrier_h[i]);
-							placedShipsVector.add(index);
 						}
-						index += 1;
+						tmpX += 1;
 					} else {
-						label = playerVector.elementAt(index);
 						if (shipSize == 3) {
 							label.setShipImage(ih.destroyer[i]);
-							placedShipsVector.add(index);
 						} else {
 							label.setShipImage(ih.carrier[i]);
-							placedShipsVector.add(index);
 						}
-						index += 10;
+						tmpY += 1;
 					}
 				}
 			}
-			if (removePlaceAble(x, y)) {
-				placedShip = index;
+			if (removePlaceAble(ship)) {
+				placedShip = true;
 			}
 		}
 	}
 
 	// Lägger till skeppet som är placerat och tar bort alla rutor som inte är
 	// placerbara längre
-	private boolean removePlaceAble(int x, int y) {
+	private boolean removePlaceAble(Ship ship) {
+		int x = ship.getStartX();
+		int y = ship.getStartY();
 		if (shipSize == 1) {
 			return shipPlacement.addSub(x, y, horizontal);
 		} else if (shipSize == 3) {
 			return shipPlacement.addDestroyer(x, y, horizontal);
 		} else if (shipSize == 5) {
 			return shipPlacement.addCarrier(x, y, horizontal);
-		}
-		return false;
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// Högerklick
-		if (e.isMetaDown()) {
-			if (horizontal) {
-				horizontal = false;
-			} else {
-				horizontal = true;
-			}
-			ship.setXAligned(horizontal);
-			// Vanligt klick
-		} else {
-			BoardLabel label = (BoardLabel) e.getSource();
-			// Kollar vilken panel som är aktiv och tar ut vart berörd label
-			// finns
-			JPanel parent = (JPanel) label.getParent();
-			// Tar ut rätt index för markerad label
-			int index = -1;
-			if (parent.equals(playerPanel)) {
-				index = playerVector.indexOf(label);
-			}
-			if (parent.equals(opponentPanel)) {
-				index = opponentVector.indexOf(label);
-			}
-			if (placeShipMode) {
-				placeShip(index, label);
-			} else if (bombMode) {
-				if (bombIsPlaceable(index)) {
-					bombed = index;
-					availableLabels.remove(availableLabels.indexOf(index));
-				}
-			}
-		}
-	}
-
-	// Kontrollerar om man kan bomba på vald plats
-	private boolean bombIsPlaceable(int index) {
-		if (availableLabels.contains(index)) {
-			return true;
 		}
 		return false;
 	}
@@ -264,22 +245,20 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI,
 			for (int y1 = 0; y1 < 10; y1++) {
 				EnumCellStatus playerValue = playerBoard
 						.getPositionValue(x, y1);
-				setCellStatus(playerValue, transformToInt(x, y1), playerVector);
+				setCellStatus(playerValue, x, y1, playerPanel);
 
 			}
 			for (int y2 = 0; y2 < 10; y2++) {
 				EnumCellStatus opponentValue = opponentBoard.getPositionValue(
 						x, y2);
-				setCellStatus(opponentValue, transformToInt(x, y2),
-						opponentVector);
+				setCellStatus(opponentValue, x, y2, opponentPanel);
 			}
 		}
-
 	}
 
 	// Ritar ut cellstatus på de olika spelbrädena
-	private void setCellStatus(EnumCellStatus tmpValue, int index,
-			Vector<BoardLabel> vector) {
+	private void setCellStatus(EnumCellStatus tmpValue, int x, int y,
+			BoardPanel panel) {
 		BoardLabel label = null;
 		switch (tmpValue) {
 		case EMPTY:
@@ -288,25 +267,42 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI,
 		case CARRIER:
 			break;
 		case MISS:
-			label = vector.elementAt(index);
+			label = panel.getLabel(x, y);
 			label.setShotImage(ih.miss);
 			label.setText(" ");
 			break;
 		case SUBMARINE_HIT:
 		case DESTROYER_HIT:
 		case CARRIER_HIT:
-		case HIT:
-			label = vector.elementAt(index);
-			if (vector.equals(playerVector)) {
-				if (placedShipsVector.contains(index)) {
+			label = panel.getLabel(x, y);
+			if (panel.equals(playerPanel)) {
+				if (label.isShipSet()) {
 					label.setShotImage(ih.hit);
+					label.setText(" ");
 				} else {
 					label.setShotImage(ih.miss);
+					label.setText(" ");
 				}
 			} else {
 				label.setShotImage(ih.hit);
+				label.setText(" ");
 			}
-			label.setText(" ");
+			JOptionPane.showMessageDialog(null, "Skeppet är sänkt");
+			break;
+		case HIT:
+			label = panel.getLabel(x, y);
+			if (panel.equals(playerPanel)) {
+				if (label.isShipSet()) {
+					label.setShotImage(ih.hit);
+					label.setText(" ");
+				} else {
+					label.setShotImage(ih.miss);
+					label.setText(" ");
+				}
+			} else {
+				label.setShotImage(ih.hit);
+				label.setText(" ");
+			}
 			break;
 		}
 	}
@@ -315,43 +311,26 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI,
 	public synchronized MessageMove getMove(EnumMoveResult lastMoveResult) {
 		if (!bombMode) {
 			placeShipMode = false;
-			initiateFreeVector();
 			bombMode = true;
 			shipSize = 0;
-			inititateMouseListenerOnOpponent();
 			JOptionPane.showMessageDialog(this, "Vart vill du bomba?");
 		}
-		bombed = -1;
+		bombed = false;
 		int x = -1, y = -1;
 		while (true) {
 			try {
 				this.wait(10);
 			} catch (InterruptedException e) {
 			}
-			if (bombed != -1) {
+			if (bombed) {
 				if (lastMoveResult == EnumMoveResult.FAIL) {
 					Message("Ditt föregående skott var inte giltigt.");
 				} else {
-					x = transformFromInt(bombed)[0];
-					y = transformFromInt(bombed)[1];
+					x = bomb[0];
+					y = bomb[1];
 					return new MessageMove(x, y);
 				}
 			}
-		}
-	}
-
-	// Tar bort muslyssning på spelarens bräde och aktiverar muslyssning på
-	// opponentens bräde
-	private void inititateMouseListenerOnOpponent() {
-		BoardLabel opponentLabel;
-		BoardLabel playerLabel;
-		for (int i = 0; i < 100; i++) {
-			opponentLabel = opponentVector.elementAt(i);
-			playerLabel = playerVector.elementAt(i);
-			opponentLabel.addMouseListener(this);
-			playerLabel.setBackground(Color.LIGHT_GRAY);
-			playerLabel.removeMouseListener(this);
-			playerLabel.removeMouseMotionListener(this);
 		}
 	}
 
@@ -384,7 +363,7 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI,
 
 	@Override
 	public void Message(String message) {
-		JOptionPane.showMessageDialog(this, message);
+		messageArea.setText(message);
 	}
 
 	/**
@@ -394,9 +373,8 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI,
 	public synchronized Ship placeShip(int size) {
 		if (!placeShipMode) {
 			placeShipMode = true;
-			// initiateFreeVector();
 		}
-		placedShip = -1;
+		placedShip = false;
 		shipSize = size;
 		ship = new Ship(-1, -1, shipSize, horizontal);
 		// Loopar så länge ett skepp inte har blivit placerat
@@ -404,56 +382,12 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI,
 			try {
 				this.wait(10);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-			if (placedShip != -1) {
+			if (placedShip) {
 				shipSize = 0;
 				return ship;
 			}
 		}
-	}
-
-	// Gör om en int till två kordinater
-	private int[] transformFromInt(int i) {
-		int x = i % 10;
-		int y = (i - x) / 10;
-		int[] xANDy = { x, y };
-		return xANDy;
-
-	}
-
-	// Gör om två kordinater till en int
-	private int transformToInt(int x, int y) {
-		return y * 10 + x;
-	}
-
-	// -----------------------------------------------------------
-	// Dessa används inte här
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent e) {
-
 	}
 
 	@Override
