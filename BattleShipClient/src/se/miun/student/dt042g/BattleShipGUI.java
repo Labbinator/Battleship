@@ -32,6 +32,8 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 	private IconHolder ih;
 	private LabelMouseListener mouseListener;
 	private int[] bomb = { -1, -1 };
+	
+	private boolean yourTurn = false;
 
 	private InteractionManipulator manipulator = new InteractionManipulator() {
 
@@ -72,7 +74,7 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 				// Placera ut skeppet
 				placeShip(x, y, panel);
 			} else if (bombMode && panel.equals(opponentPanel)) {
-				if (panel.containsBomb(x, y)) {
+				if (panel.containsBomb(x, y) && yourTurn) {
 					// Ta bort det röda
 					paintBomb(x, y, panel, null);
 					// Bomba på vald plats
@@ -278,6 +280,8 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 
 	@Override
 	public synchronized MessageMove getMove(EnumMoveResult lastMoveResult) {
+		yourTurn = true;
+		
 		if (!bombMode) {
 			placeShipMode = false;
 			bombMode = true;
@@ -296,10 +300,11 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 				} else {
 					x = bomb[0];
 					y = bomb[1];
+					yourTurn = false;
 					return new MessageMove(x, y);
 				}
 			}
-		}
+		}				
 	}
 
 	@Override

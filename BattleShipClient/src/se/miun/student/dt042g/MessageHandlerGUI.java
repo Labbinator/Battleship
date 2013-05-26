@@ -181,6 +181,7 @@ public class MessageHandlerGUI {
 			MessageMove tmpMess = battleShipGUI.getMove(lastMoveResult);
 			xMove = tmpMess.getX();
 			yMove = tmpMess.getY();
+			battleShipGUI.Message("Vänta på motståndaren.");
 			return tmpMess;
 		case LOBBYRESPONSE:
 			break;
