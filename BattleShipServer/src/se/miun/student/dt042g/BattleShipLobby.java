@@ -77,7 +77,8 @@ public class BattleShipLobby {
 									// nästa spelare.
 				} else {
 					System.out.println("Spelare har valt att spela mot AI.");
-					new BattleShipGameThred(player, new PlayerAI()).start();
+					//new BattleShipGameThred(player, new PlayerAI()).start();
+					new BattleShipGameThred(player, new PlayerAISmart()).start();
 					continue; // Går till början, av while loopen för att hämta
 								// en ny spelare
 				}

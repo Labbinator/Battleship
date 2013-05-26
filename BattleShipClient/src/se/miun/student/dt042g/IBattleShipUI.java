@@ -15,4 +15,8 @@ public interface IBattleShipUI {
 
 	public Ship placeShip(int ship);
 
+	public void showDialog(String message);
+
+	public Ship placeShip(int size, BaseBoard board, String message, boolean xAlign);
+
 }

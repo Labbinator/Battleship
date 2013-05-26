@@ -4,14 +4,14 @@ import javax.swing.ImageIcon;
 	
 public class IconHolder {
 
-	public final ImageIcon water;
-	public final ImageIcon miss;
-	public final ImageIcon hit;
-	public final ImageIcon sub;
-	public final ImageIcon[] destroyer;
-	public final ImageIcon[] destroyer_h;
-	public final ImageIcon[] carrier;
-	public final ImageIcon[] carrier_h;
+	private final ImageIcon water;
+	private final ImageIcon miss;
+	private final ImageIcon hit;
+	private final ImageIcon sub;
+	private final ImageIcon[] destroyer;
+	private final ImageIcon[] destroyer_h;
+	private final ImageIcon[] carrier;
+	private final ImageIcon[] carrier_h;
 	
 	private static final IconHolder inst = new IconHolder();
 	
@@ -50,5 +50,49 @@ public class IconHolder {
 	
 	public static IconHolder getInstance(){
 			return inst;
+	}
+	
+	public ImageIcon getWater() {
+		return water;
+	}
+	
+	public ImageIcon getMiss() {
+		return miss;
+	}
+
+	public ImageIcon getHit() {
+		return hit;
+	}
+
+	public ImageIcon getSub() {
+		return sub;
+	}
+	
+	public ImageIcon getDestroyer(Integer index) {
+		if (index >= 0 && index < destroyer.length) {
+			return destroyer[index];
+		}
+		return null;
+	}
+	
+	public ImageIcon getDestroyer_h(Integer index) {
+		if (index >= 0 && index < destroyer_h.length ) {
+			return destroyer_h[index];
+		}
+		return null;
+	}
+
+	public ImageIcon getCarrier(Integer index) {
+		if (index >= 0 && index < carrier.length) {
+			return carrier[index];
+		}
+		return null;
+	}
+	
+	public ImageIcon getCarrier_h(Integer index) {
+		if (index >= 0 && index < carrier_h.length) {
+			return carrier_h[index];
+		}
+		return null;
 	}
 }

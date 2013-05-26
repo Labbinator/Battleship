@@ -6,11 +6,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import javax.swing.JOptionPane;
+//import javax.swing.JOptionPane;
 
 public class MessageHandlerGUI {
 
-	IBattleShipUI battleShipGUI = new BattleShipGUI();
+	IBattleShipUI battleShipGUI;// = new BattleShipGUI();
 	BaseBoard[] boards;
 
 	private int xMove = -1;
@@ -21,15 +21,27 @@ public class MessageHandlerGUI {
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
 	private String hostname;
+	
+	public MessageHandlerGUI(String hostname, boolean useConsole) {
+		this.hostname = hostname;
+		
+		if (useConsole) {
+			battleShipGUI = new BattleShipUI();
+		} else {
+			battleShipGUI = new BattleShipGUI();
+		}
+	}
 
 	//Användaren har angett ip-adress
 	public MessageHandlerGUI(String hostname) {
 		this.hostname = hostname;
+		battleShipGUI = new BattleShipUI();
 	}
 	
 	//Om ingen ip-adress anges sätts den till localhost
 	public MessageHandlerGUI(){
 		hostname = "127.0.0.1";
+		battleShipGUI = new BattleShipGUI();
 	}
 
 	public void run() {
@@ -141,11 +153,13 @@ public class MessageHandlerGUI {
 			break;
 		case SINK:
 			((BlindBoard) boards[1]).setShot(xMove, yMove, EnumCellStatus.HIT);
-			JOptionPane.showMessageDialog(null, "Skeppet är sänkt!");
+			battleShipGUI.showDialog("Skeppet är sänkt");
+			//JOptionPane.showMessageDialog(null, "Skeppet är sänkt!");
 			break;
 		case WIN:
 			((BlindBoard) boards[1]).setShot(xMove, yMove, EnumCellStatus.HIT);
-			JOptionPane.showMessageDialog(null, "Du har vunnit! Starta om klienten för att spela igen.");
+			battleShipGUI.showDialog("Du har vunnit! Starta om klienten för att spela igen.");
+			//JOptionPane.showMessageDialog(null, "Du har vunnit! Starta om klienten för att spela igen.");
 			break;
 
 		default:
@@ -173,7 +187,8 @@ public class MessageHandlerGUI {
 		case ABORTGAME:
 			break;
 		case LOSE:
-			JOptionPane.showMessageDialog(null, "Du har förlorat! Starta om klienten för att spela igen.");
+			battleShipGUI.showDialog("Du har förlorat! Starta om klienten för att spela igen.");
+			//JOptionPane.showMessageDialog(null, "Du har förlorat! Starta om klienten för att spela igen.");
 			break;
 		default:
 			break;
@@ -200,7 +215,8 @@ public class MessageHandlerGUI {
 
 	private void placementSubs(ShipPlacementBuilder placeBuilder) {
 		for (int i = 0; i < 5; i++) {
-			Ship ship = battleShipGUI.placeShip(1);
+			String message = "Vart vill du placera ubåt " + (i + 1) + "?";
+			Ship ship = battleShipGUI.placeShip(1, boards[0], message, false);
 
 			if (!placeBuilder.addSub(ship.getStartX(), ship.getStartY(),
 					ship.getXAligned())) {
@@ -215,7 +231,8 @@ public class MessageHandlerGUI {
 
 	private void placementDestroyer(ShipPlacementBuilder placeBuilder) {
 		for (int i = 0; i < 3; i++) {
-			Ship ship = battleShipGUI.placeShip(3);
+			String message = "Vart vill du placera jagare " + (i + 1) + "?";
+			Ship ship = battleShipGUI.placeShip(3, boards[0], message, true);
 
 			if (!placeBuilder.addDestroyer(ship.getStartX(), ship.getStartY(),
 					ship.getXAligned())) {
@@ -230,7 +247,8 @@ public class MessageHandlerGUI {
 
 	private void placementCarrier(ShipPlacementBuilder placeBuilder) {
 		for (int i = 0; i < 1; i++) {
-			Ship ship = battleShipGUI.placeShip(5);
+			String message = "Vart vill du placera ditt hangarfartyg?";
+			Ship ship = battleShipGUI.placeShip(5, boards[0], message, true);
 
 			if (!placeBuilder.addCarrier(ship.getStartX(), ship.getStartY(),
 					ship.getXAligned())) {

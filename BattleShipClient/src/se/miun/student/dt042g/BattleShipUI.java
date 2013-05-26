@@ -249,8 +249,37 @@ public class BattleShipUI implements IBattleShipUI {
 
 	@Override
 	public Ship placeShip(int ship) {
-		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void showDialog(String message) {
+		System.out.println(message);
+		
+	}
+
+	@Override
+	public Ship placeShip(int size, BaseBoard board, String message,
+			boolean askXAlign) {
+		
+		ShipCordinates shipCord = getShipPlacement(board, message, askXAlign);
+		
+
+		///writeBoard(board);
+
+		// System.out.print(message);
+		// String inputString = new String(input.nextLine());
+		// String[] movePointsinput = inputString.split(",");
+		// int x = Integer.parseInt(movePointsinput[0]);
+		// int y = Integer.parseInt(movePointsinput[1]);
+
+		///ShipCordinates shipCord = getCheckPlacement(message);
+
+		///if (askXAlign) {
+		///	shipCord.setXAlign(getCheckOrientation());
+		///}
+
+		return new Ship(shipCord.getX(), shipCord.getY(), size, shipCord.getXAlign());
 	}
 
 }

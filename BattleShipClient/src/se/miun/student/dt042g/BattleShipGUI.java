@@ -120,7 +120,7 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 				label.setPreferredSize(d);
 				label.setBorder(e);
 				label.setOpaque(true);
-				label.setBgImage(ih.water);
+				label.setBgImage(ih.getWater());
 				label.addMouseListener(mouseListener);
 				label.addMouseMotionListener(mouseListener);
 				panel.addLabel(label);
@@ -177,23 +177,23 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 			// Om det är en ubåt som ska placeras
 			if (shipSize == 1) {
 				// Sätt bilden
-				label.setShipImage(ih.sub);
+				label.setShipImage(ih.getSub());
 			} else {
 				int tmpX = x, tmpY = y;
 				for (int i = 0; i < shipSize; i++) {
 					label = panel.getLabel(tmpX, tmpY);
 					if (horizontal) {
 						if (shipSize == 3) {
-							label.setShipImage(ih.destroyer_h[i]);
+							label.setShipImage(ih.getDestroyer_h(i));
 						} else {
-							label.setShipImage(ih.carrier_h[i]);
+							label.setShipImage(ih.getCarrier_h(i));
 						}
 						tmpX += 1;
 					} else {
 						if (shipSize == 3) {
-							label.setShipImage(ih.destroyer[i]);
+							label.setShipImage(ih.getDestroyer(i));
 						} else {
-							label.setShipImage(ih.carrier[i]);
+							label.setShipImage(ih.getCarrier(i));
 						}
 						tmpY += 1;
 					}
@@ -252,7 +252,7 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 			break;
 		case MISS:
 			label = panel.getLabel(x, y);
-			label.setShotImage(ih.miss);
+			label.setShotImage(ih.getMiss());
 			label.setText(" ");
 			break;
 		case SUBMARINE_HIT:
@@ -262,14 +262,14 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 			label = panel.getLabel(x, y);
 			if (panel.equals(playerPanel)) {
 				if (label.isShipSet()) {
-					label.setShotImage(ih.hit);
+					label.setShotImage(ih.getHit());
 					label.setText(" ");
 				} else {
-					label.setShotImage(ih.miss);
+					label.setShotImage(ih.getMiss());
 					label.setText(" ");
 				}
 			} else {
-				label.setShotImage(ih.hit);
+				label.setShotImage(ih.getHit());
 				label.setText(" ");
 			}
 			break;
@@ -364,4 +364,30 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 		return null;
 	}
 
+	@Override
+	public void showDialog(String message) {
+		JOptionPane.showMessageDialog(null, message);
+		
+	}
+
+	@Override
+	public synchronized Ship placeShip(int size, BaseBoard board, String message, boolean xAlign) {
+		if (!placeShipMode) {
+			placeShipMode = true;
+		}
+		placedShip = false;
+		shipSize = size;
+		ship = new Ship(-1, -1, shipSize, horizontal);
+		// Loopar så länge ett skepp inte har blivit placerat
+		while (true) {
+			try {
+				this.wait(10);
+			} catch (InterruptedException e) {
+			}
+			if (placedShip) {
+				shipSize = 0;
+				return ship;
+			}
+		}
+	}
 }

@@ -8,9 +8,7 @@ import java.net.Socket;
 
 public class MessageHandler {
 
-	private String hostname;
-	
-	IBattleShipUI battleShipUI = new BattleShipUI();
+	IBattleShipUI battleShipUI = new BattleShipGUI();
 	BaseBoard[] boards;
 	
 	private int xMove = -1;
@@ -19,8 +17,10 @@ public class MessageHandler {
 	private EnumMoveResult lastMoveResult = EnumMoveResult.MISS;
 	
 	private ObjectOutputStream out;
-	private ObjectInputStream in;	
+	private ObjectInputStream in;
+	private String hostname;
 	
+	//Användaren har engett ip-adress
 	public MessageHandler(String ipAddress) {
 		
 		if (ipAddress.equals("")) {
@@ -31,8 +31,14 @@ public class MessageHandler {
 		
 		hostname = ipAddress;
 	}
+	
+	//Om ingen ip-adress anges sätts den till localhost
+	public MessageHandler(){
+		hostname = "127.0.0.1";
+	}
 
 	public void run() {
+		
 		boards = new BaseBoard[2];
 		boards[0] = new GameBoard(); //MyBoard		
 		boards[1] = new BlindBoard(); //OpponentsBoard
@@ -138,8 +144,7 @@ public class MessageHandler {
 		return null;				
 	}
 
-	private Message getPlacement() {
-		
+	private Message getPlacement() {		
 		ShipPlacementBuilder placeBuilder = new ShipPlacementBuilder();	
 		
 		battleShipUI.Message("Utplacering av ubåtar.");		
@@ -159,9 +164,10 @@ public class MessageHandler {
 	private void placementCarrier(ShipPlacementBuilder placeBuilder) {
 		for (int i = 0; i < 1; i++) {
 			String message = "Vart vill du placera ditt hangarfartyg?";
-			ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, true);
+			//ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, true);
+			Ship ship = battleShipUI.placeShip(5, boards[0], message, false);
 			
-			if (!placeBuilder.addCarrier(shipCord.getX(), shipCord.getY(), shipCord.getXAlign())) {
+			if (!placeBuilder.addCarrier(ship.getStartX(), ship.getStartY(), ship.getXAligned())) {
 				battleShipUI.Message("Felutplacering");
 				i--;
 			} else {
@@ -173,9 +179,10 @@ public class MessageHandler {
 	private void placementDestroyer(ShipPlacementBuilder placeBuilder) {
 		for (int i = 0; i < 3; i++) {
 			String message = "Vart vill du placera jagare " + (i + 1) + "?";
-			ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, true);
+			//ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, true);
+			Ship ship = battleShipUI.placeShip(3, boards[0], message, false);
 			
-			if (!placeBuilder.addDestroyer(shipCord.getX(), shipCord.getY(), shipCord.getXAlign())) {
+			if (!placeBuilder.addDestroyer(ship.getStartX(), ship.getStartY(), ship.getXAligned())) {
 				battleShipUI.Message("Felutplacering");
 				i--;
 			} else {
@@ -187,9 +194,10 @@ public class MessageHandler {
 	private void placementSubs(ShipPlacementBuilder placeBuilder) {
 		for (int i = 0; i < 5; i++) {
 			String message = "Vart vill du placera ubåt " + (i + 1) + "?";
-			ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, false);
+			//ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, false);
+			Ship ship = battleShipUI.placeShip(1, boards[0], message, false);
 			
-			if (!placeBuilder.addSub(shipCord.getX(), shipCord.getY(), shipCord.getXAlign())) {
+			if (!placeBuilder.addSub(ship.getStartX(), ship.getStartY(), ship.getXAligned())) {
 				battleShipUI.Message("Felutplacering");
 				i--;
 			} else {
