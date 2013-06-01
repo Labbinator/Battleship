@@ -5,8 +5,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.io.File;
 import java.util.Vector;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -32,7 +36,7 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 	private IconHolder ih;
 	private LabelMouseListener mouseListener;
 	private int[] bomb = { -1, -1 };
-	
+
 	private boolean yourTurn = false;
 
 	private InteractionManipulator manipulator = new InteractionManipulator() {
@@ -109,6 +113,21 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 		opponentPanel = new BoardPanel("Motståndare");
 		initiateBoard(playerPanel, playerVector);
 		initiateBoard(opponentPanel, opponentVector);
+		playMusic();
+	}
+
+	public void playMusic() {
+		try {
+			AudioInputStream audioInputStream = AudioSystem
+					.getAudioInputStream(new File("audio/BattleShipMarch.wav")
+							.getAbsoluteFile());
+			Clip clip = AudioSystem.getClip();
+			clip.open(audioInputStream);
+			clip.start();
+		} catch (Exception ex) {
+			System.out.println("Error with playing sound.");
+			ex.printStackTrace();
+		}
 	}
 
 	private void initiateBoard(BoardPanel panel, Vector<BoardLabel> vector) {
@@ -281,7 +300,7 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 	@Override
 	public synchronized MessageMove getMove(EnumMoveResult lastMoveResult) {
 		yourTurn = true;
-		
+
 		if (!bombMode) {
 			placeShipMode = false;
 			bombMode = true;
@@ -304,7 +323,7 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 					return new MessageMove(x, y);
 				}
 			}
-		}				
+		}
 	}
 
 	@Override
@@ -372,11 +391,12 @@ public class BattleShipGUI extends JFrame implements IBattleShipUI {
 	@Override
 	public void showDialog(String message) {
 		JOptionPane.showMessageDialog(null, message);
-		
+
 	}
 
 	@Override
-	public synchronized Ship placeShip(int size, BaseBoard board, String message, boolean xAlign) {
+	public synchronized Ship placeShip(int size, BaseBoard board,
+			String message, boolean xAlign) {
 		if (!placeShipMode) {
 			placeShipMode = true;
 		}

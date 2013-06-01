@@ -142,7 +142,10 @@ public class MessageHandlerGUI {
 
 	private void moveResponse(EnumMoveResult moveResult) {
 
+		boolean showMessDialog = false;
+		
 		lastMoveResult = moveResult;
+		String dialogMess = "";
 
 		switch (moveResult) {
 		case HIT:
@@ -153,19 +156,23 @@ public class MessageHandlerGUI {
 			break;
 		case SINK:
 			((BlindBoard) boards[1]).setShot(xMove, yMove, EnumCellStatus.HIT);
-			battleShipGUI.showDialog("Skeppet är sänkt");
-			//JOptionPane.showMessageDialog(null, "Skeppet är sänkt!");
+			showMessDialog = true;
+			dialogMess = "Skeppet är sänkt";
 			break;
 		case WIN:
 			((BlindBoard) boards[1]).setShot(xMove, yMove, EnumCellStatus.HIT);
-			battleShipGUI.showDialog("Du har vunnit! Starta om klienten för att spela igen.");
-			//JOptionPane.showMessageDialog(null, "Du har vunnit! Starta om klienten för att spela igen.");
+			showMessDialog = true;
+			dialogMess = "Du har vunnit! Starta om klienten för att spela igen.";
 			break;
 
 		default:
 			break;
 		}
 		battleShipGUI.updateGameBoard(boards);
+		
+		if (showMessDialog) {
+			battleShipGUI.showDialog(dialogMess);
+		}
 
 		if (moveResult == EnumMoveResult.WIN) {
 			battleShipGUI.Message("Grattis, du har vunnit!");
@@ -189,7 +196,6 @@ public class MessageHandlerGUI {
 			break;
 		case LOSE:
 			battleShipGUI.showDialog("Du har förlorat! Starta om klienten för att spela igen.");
-			//JOptionPane.showMessageDialog(null, "Du har förlorat! Starta om klienten för att spela igen.");
 			break;
 		default:
 			break;

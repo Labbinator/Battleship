@@ -2,9 +2,9 @@ package se.miun.student.dt042g;
 
 public interface PlayerInterface {
 	
-	public Message sendMessage();
+	public Message sendMessage() throws Exception;
 	
-	public void getMessage(Message mess);
+	public void getMessage(Message mess) throws Exception;
 	
 	public void close();
 	

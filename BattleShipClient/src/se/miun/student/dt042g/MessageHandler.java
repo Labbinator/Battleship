@@ -163,8 +163,7 @@ public class MessageHandler {
 
 	private void placementCarrier(ShipPlacementBuilder placeBuilder) {
 		for (int i = 0; i < 1; i++) {
-			String message = "Vart vill du placera ditt hangarfartyg?";
-			//ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, true);
+			String message = "Vart vill du placera ditt hangarfartyg?";			//ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, true);
 			Ship ship = battleShipUI.placeShip(5, boards[0], message, false);
 			
 			if (!placeBuilder.addCarrier(ship.getStartX(), ship.getStartY(), ship.getXAligned())) {
@@ -178,8 +177,7 @@ public class MessageHandler {
 
 	private void placementDestroyer(ShipPlacementBuilder placeBuilder) {
 		for (int i = 0; i < 3; i++) {
-			String message = "Vart vill du placera jagare " + (i + 1) + "?";
-			//ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, true);
+			String message = "Vart vill du placera jagare " + (i + 1) + "?";			//ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, true);
 			Ship ship = battleShipUI.placeShip(3, boards[0], message, false);
 			
 			if (!placeBuilder.addDestroyer(ship.getStartX(), ship.getStartY(), ship.getXAligned())) {
@@ -193,8 +191,7 @@ public class MessageHandler {
 
 	private void placementSubs(ShipPlacementBuilder placeBuilder) {
 		for (int i = 0; i < 5; i++) {
-			String message = "Vart vill du placera ubåt " + (i + 1) + "?";
-			//ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, false);
+			String message = "Vart vill du placera ubåt " + (i + 1) + "?";			//ShipCordinates shipCord = battleShipUI.getShipPlacement(boards[0], message, false);
 			Ship ship = battleShipUI.placeShip(1, boards[0], message, false);
 			
 			if (!placeBuilder.addSub(ship.getStartX(), ship.getStartY(), ship.getXAligned())) {

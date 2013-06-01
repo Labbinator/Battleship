@@ -24,26 +24,16 @@ public class Player implements PlayerInterface {
 	}
 	
 	@Override
-	public Message sendMessage() {
-		try {
-			mess = (Message)in.readObject();
-		} catch (ClassNotFoundException | IOException e) {
-			System.out.println("Undantag i Player.java::sendMessage.");
-			close();
-		}
+	public Message sendMessage() throws Exception {
+		mess = (Message)in.readObject();
 		
 		return mess;
 	}
 
 	@Override
-	public void getMessage(Message mess) {
-		try {
-			out.writeObject(mess);
-			out.flush();
-		} catch (IOException e) {
-			System.out.println("Undantag i Player.java::getMessage.");
-			close();
-		}
+	public void getMessage(Message mess) throws Exception {
+		out.writeObject(mess);
+		out.flush();
 	}
 
 	@Override

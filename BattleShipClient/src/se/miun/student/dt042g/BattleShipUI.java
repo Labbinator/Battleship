@@ -76,12 +76,6 @@ public class BattleShipUI implements IBattleShipUI {
 		}
 
 		return getCheckMoveInput();
-
-		// String inputString = new String(input.nextLine());
-		// String[] movePointsinput = inputString.split(",");
-		// int xMove = Integer.parseInt(movePointsinput[0]);
-		// int yMove = Integer.parseInt(movePointsinput[1]);
-		// return new MessageMove(xMove, yMove);
 	}
 
 	private MessageMove getCheckMoveInput() {
@@ -182,12 +176,6 @@ public class BattleShipUI implements IBattleShipUI {
 
 		writeBoard(board);
 
-		// System.out.print(message);
-		// String inputString = new String(input.nextLine());
-		// String[] movePointsinput = inputString.split(",");
-		// int x = Integer.parseInt(movePointsinput[0]);
-		// int y = Integer.parseInt(movePointsinput[1]);
-
 		ShipCordinates shipCord = getCheckPlacement(message);
 
 		if (askXAlign) {
@@ -195,7 +183,6 @@ public class BattleShipUI implements IBattleShipUI {
 		}
 
 		return shipCord;
-		// return new ShipCordinates(x, y, xAlign);
 	}
 
 	private boolean getCheckOrientation() {
@@ -262,24 +249,8 @@ public class BattleShipUI implements IBattleShipUI {
 	public Ship placeShip(int size, BaseBoard board, String message,
 			boolean askXAlign) {
 		
-		ShipCordinates shipCord = getShipPlacement(board, message, askXAlign);
-		
-
-		///writeBoard(board);
-
-		// System.out.print(message);
-		// String inputString = new String(input.nextLine());
-		// String[] movePointsinput = inputString.split(",");
-		// int x = Integer.parseInt(movePointsinput[0]);
-		// int y = Integer.parseInt(movePointsinput[1]);
-
-		///ShipCordinates shipCord = getCheckPlacement(message);
-
-		///if (askXAlign) {
-		///	shipCord.setXAlign(getCheckOrientation());
-		///}
+		ShipCordinates shipCord = getShipPlacement(board, message, askXAlign);		
 
 		return new Ship(shipCord.getX(), shipCord.getY(), size, shipCord.getXAlign());
 	}
-
 }

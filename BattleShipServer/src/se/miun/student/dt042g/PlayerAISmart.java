@@ -14,7 +14,6 @@ public class PlayerAISmart implements PlayerInterface {
 	MessageMove nextMove = null;
 	MessageMove lastMove = null;
 	List<Integer> moveList = null;
-	//List<bombsPlacement> bombList = null;
 	boolean[] usedPlaceList = new boolean[100];
 	MessageMove firstHit = null;
 	MessageMove lowestHit = null;
@@ -26,23 +25,8 @@ public class PlayerAISmart implements PlayerInterface {
 	boolean thirdTryDone = false;
 	boolean fourthTryDone = false;
 	boolean lowestMiss = false;
-	
-	//MessageMove lastHitMove = null;
-	//MessageMove nextMove = null;
-	//boolean searchedTop = false;
-	//boolean searchedBottom = false;
-	//boolean searchedLeft = false;
-	//boolean searchedRight = false;
 
-	
 	public PlayerAISmart(){
-		
-		//Måste vara i denna ordning annars så funkar inte
-		//createGridList eftersom den använder listan som 
-		//är skapad i createBombList.
-		//bombList = createBombList();
-		//moveList = createGridList();
-
 	}
 
 	@Override
@@ -76,8 +60,6 @@ public class PlayerAISmart implements PlayerInterface {
 		case MOVERESPONSE:
 			lastMess = EnumHeader.MOVERESPONSE;
 			checkMoveResponse((MessageMoveResponse)mess);
-			//checkMoveResponse((MessageMoveResponse)mess);
-			
 			break;
 		case SERVERREQUEST:
 			lastMess = EnumHeader.SERVERREQUEST;
@@ -246,90 +228,8 @@ public class PlayerAISmart implements PlayerInterface {
 		}			
 	}
 
-/*
-	private void checkMoveResponse(MessageMoveResponse mess) {
-		EnumMoveResult moveResult = mess.getResponse();
-		
-		//Skottet missade eller så är det något annat fel och då
-		//behöver vi inte göra något här.
-		if (moveResult == EnumMoveResult.MISS || moveResult == EnumMoveResult.FAIL) {
-			return;
-		}
-		
-		//Om vi sänkte något så har vi redan tagit bort
-		//alla andra onödig bombplatser, så nu tar vi bort
-		//alla onödiga bombplatser runt skottet som sänkte
-		//skeppet, eftersom vi inte kollar vad det är vi har 
-		//sänkt så kanske vi tar bort en massa platser som 
-		//redan är borttagna, men lättare än att kolla det.
-		if (moveResult == EnumMoveResult.SINK) {
-			removeAllHorizontalVerticalBombPlacesAroundMove();
-		}
-		
-		if (moveResult == EnumMoveResult.HIT) {
-			if (lastHitMove == null) {
-				lastHitMove = new MessageMove(lastMove.getX(), lastMove.getY());
-				if (lastHitMove.getY() > 0) {
-					nextMove = new MessageMove(lastHitMove.getX(), lastHitMove.getY() - 1);
-					searchedTop = true;
-				} else {
-					nextMove = new MessageMove(lastHitMove.getX(), lastHitMove.getY() + 1);
-					searchedTop = true;
-					searchedBottom = true;
-				}
-				
-				return;
-			}
-			
-			if (searchedTop || searchedBottom) {
-				isVertical = true;
-				if (!searchedBottom && lastMove.getY() < 9) {
-					nextMove = new MessageMove(lastMove.getX(), lastMove.getY() + 1);
-					searchedBottom = true;
-				}
-			}
-			
-		}
-		
-	}
-	*/
-
-	/*
-	private void removeAllHorizontalVerticalBombPlacesAroundMove() {
-		int xPos = nextMove.getX();
-		int yPos = nextMove.getY() - 1;
-		
-		removeUnusedBombPlace(xPos, yPos);
-		xPos--;
-		yPos++;
-		removeUnusedBombPlace(xPos, yPos);
-		xPos += 2;
-		removeUnusedBombPlace(xPos, yPos);
-		xPos--;
-		yPos++;
-		removeUnusedBombPlace(xPos, yPos);							
-	}
-	*/
-
-	/*
-	private void removeUnusedBombPlace(int xPos, int yPos) {
-		//Kollar så att x och y positionerna är på spelplanen
-		//i annat fall så kan vi inte markera postionen som used.
-		if (xPos > -1 && xPos < 10 && yPos > -1 && yPos < 10) {
-			for (bombsPlacement tmpBombPlace : bombList) {
-				if (tmpBombPlace.getX() == xPos && tmpBombPlace.getY() == yPos) {
-					tmpBombPlace.setUsed(true);
-					break;
-				}
-			}
-		}
-	}
-	*/
-
 	@Override
 	public void close() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -372,16 +272,7 @@ public class PlayerAISmart implements PlayerInterface {
 			int xPlace = currentMove / 10;
 			int yPlace = currentMove % 10;
 			
-			usedPlaceList[currentMove] = true;
-			
-			/*
-			for (bombsPlacement tmpBombPlace : bombList) {
-				if (tmpBombPlace.getX() == xPlace && tmpBombPlace.getY() == yPlace) {
-					tmpBombPlace.setUsed(true);
-					break;
-				}
-			}
-			*/
+			usedPlaceList[currentMove] = true;			
 			
 			nextMove = new MessageMove(xPlace, yPlace);						
 		} else if (isHotizontal) {
@@ -570,51 +461,4 @@ public class PlayerAISmart implements PlayerInterface {
 		}
 		return returnList;
 	}
-	
-	/*
-	private List<bombsPlacement> createBombList() {
-		List<bombsPlacement> tmpBombList = new ArrayList<bombsPlacement>();
-		
-		for (int i = 0; i < 100; i++) {
-			int x = i / 10;
-			int y = i % 10;
-			
-			bombsPlacement tmpBombPlace = new bombsPlacement(x, y);
-			
-			tmpBombList.add(tmpBombPlace);
-		}
-		return tmpBombList;
-	}
-	*/
-	
-	/*
-	private class bombsPlacement {
-		private int x;
-		private int y;
-		private boolean used;
-		
-		public bombsPlacement(int inX, int inY) {
-			x = inX;
-			y = inY;
-			used = false;
-			// TODO Auto-generated constructor stub
-		}
-		
-		public int getX() {
-			return x;
-		}
-		
-		public int getY() {
-			return y;
-		}
-		
-		public boolean getUsed() {
-			return used;
-		}
-		
-		public void setUsed(boolean inUsed) {
-			used = inUsed;
-		}
-	}
-	*/
 }

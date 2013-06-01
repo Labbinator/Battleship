@@ -51,10 +51,7 @@ public class BattleShipLobby {
 		while (true) { // Evig loop, tar emot nya spelare bryter och returnerar
 						// när en spelar valt att spela mot annan spelare
 			try {
-				PlayerInterface player = new Player(ss.accept());
-
-				// System.out.println("Anslutning etablerad från: " +
-				// player.getInetAddress().getHostAddress());
+				PlayerInterface player = new Player(ss.accept());;
 
 				// Skicka lobbyinfo till spelare
 				player.getMessage(new MessageLobbyStatus(state));
@@ -76,8 +73,7 @@ public class BattleShipLobby {
 					return player; // För att gå ur while loopen och ta emot
 									// nästa spelare.
 				} else {
-					System.out.println("Spelare har valt att spela mot AI.");
-					//new BattleShipGameThred(player, new PlayerAI()).start();
+					System.out.println("Spelare har valt att spela mot AI.");					//new BattleShipGameThred(player, new PlayerAI()).start();
 					new BattleShipGameThred(player, new PlayerAISmart()).start();
 					continue; // Går till början, av while loopen för att hämta
 								// en ny spelare
@@ -89,6 +85,8 @@ public class BattleShipLobby {
 				System.out.println("NullPointerException i BattleShipLobby.java::getplayer");
 				System.out.println("Om detta meddelande loopar beror det på att servern inte kan öppna socket för port 5511");
 				e.printStackTrace();
+			} catch (Exception e) {
+				System.out.println("IOException i BattleShipLobby.java::getplayer");
 			}
 		}
 	}

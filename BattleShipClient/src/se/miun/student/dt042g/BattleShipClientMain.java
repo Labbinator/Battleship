@@ -36,16 +36,5 @@ public class BattleShipClientMain {
 		}
 		
 		messageHandler.run();
-		
-		/*
-		if (args.length > 0) {
-			MessageHandlerGUI messageHandler = new MessageHandlerGUI(args[0]);
-			messageHandler.run();
-			System.out.println("Hej då!");
-		} else {
-			MessageHandlerGUI messageHandler = new MessageHandlerGUI();
-			messageHandler.run();
-		}
-		*/
 	}
 }
