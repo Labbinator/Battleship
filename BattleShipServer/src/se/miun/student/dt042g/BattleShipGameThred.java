@@ -26,24 +26,33 @@ public class BattleShipGameThred extends Thread {
 	
 			gameLoop();
 		}catch (Exception e) {
+			abortGame();
 			return;
 		}
 	}// Slutet av run, här dör tråden själv
 
-	private void abortGame() throws Exception {
-		playerOne.getMessage(new MessageServerRequest(
-				EnumRequestType.ABORTGAME,
-				"Någon spelar har skickat felaktig data, spelet avslutas!"));
-		playerOne.close();
-		playerTwo.getMessage(new MessageServerRequest(
-				EnumRequestType.ABORTGAME,
-				"Någon spelar har skickat felaktig data, spelet avslutas!"));
-		playerTwo.close();
-		throw new Exception();
+	private void abortGame(){
+		try {
+			playerOne.getMessage(new MessageServerRequest(
+					EnumRequestType.ABORTGAME,
+					"Någon spelar har skickat felaktig data, spelet avslutas!"));
+			playerOne.close();
+		} catch (Exception e){
+			//Spelare ett är redan borta, varför bry sig.
+		}
+		
+		try {
+			playerTwo.getMessage(new MessageServerRequest(
+					EnumRequestType.ABORTGAME,
+					"Någon spelar har skickat felaktig data, spelet avslutas!"));
+			playerTwo.close();
+		} catch (Exception e) {
+			//Spelare två är redan borta, varför bry sig.
+		}		
 	}
 
-	private void placementRequest(PlayerInterface player) {
-		try{
+	private void placementRequest(PlayerInterface player) throws Exception {
+		//try{
 			mess = player.sendMessage();
 			checkMessage(mess, EnumHeader.PLACEMENT);
 	
@@ -57,9 +66,9 @@ public class BattleShipGameThred extends Thread {
 			GameBoard board = new GameBoard();
 			board.setupPlacement(((MessagePlacement) mess).getShipPlacement());
 			player.setPlacement(board);
-		}catch (Exception e) {
+		//}catch (Exception e) {
 			
-		}
+		//}
 	}
 
 	private void checkMessage(Message mess, EnumHeader header) throws Exception {
