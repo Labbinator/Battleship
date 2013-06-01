@@ -69,7 +69,6 @@ public class BattleShipUI implements IBattleShipUI {
 
 	@Override
 	public MessageMove getMove(EnumMoveResult lastMoveResult) {
-		Scanner input = new Scanner(System.in);
 
 		if (lastMoveResult == EnumMoveResult.FAIL) {
 			System.out.println("Ditt föregående skott var inte giltigt.");
@@ -157,8 +156,7 @@ public class BattleShipUI implements IBattleShipUI {
 			} else {
 				Runtime.getRuntime().exec("clear");
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException e) {			
 			e.printStackTrace();
 		}
 	}
@@ -171,8 +169,6 @@ public class BattleShipUI implements IBattleShipUI {
 	@Override
 	public ShipCordinates getShipPlacement(BaseBoard board, String message,
 			boolean askXAlign) {
-
-		boolean xAlign = false;
 
 		writeBoard(board);
 
